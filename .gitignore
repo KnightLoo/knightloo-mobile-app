@@ -1,13 +1,36 @@
+# Node
 node_modules/
-.expo/
+yarn-error.log
 npm-debug.*
+
+# Expo
+.expo/
+__generated__
+web-build/
+
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
 *.orig.*
-web-build/
+
+
+# Ruby
+.direnv
+
+# VSCode
+.history/
+
+# Env
+.envrc.local
+
+# Xcode
+*.pbxuser
+!default.pbxuser
+*.xccheckout
+*.xcscmblueprint
+xcuserdata
 
 # macOS
 .DS_Store
