@@ -1,47 +1,77 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import React, { useState, useRef, useCallback, useContext } from 'react';
+import { StyleSheet, Dimensions, View, Text } from 'react-native';
 import {default as ReactNativeMapView} from 'react-native-maps';
+import LandmarkBottomSheetView from '../components/LandmarkBottomSheetView';
+import LandmarkMapContext from '../contexts/LandmarkMapContext';
 
-export default function MapView({ markers, initialRegion }) {
+export default function MapView() {
+
+    const {region: initialRegion, landmarks} = useContext(LandmarkMapContext);
+    const windowHeight = Dimensions.get("window").height;
 
     const [selectedMarker, setSelectedMarker] = useState(null);
 
     const mapRef = useRef(null);
+    const bottomSheetModalRef = useRef(null);
 
-    const handleMarkerPress = (e, markerId) => {
+    const handleSheetChanges = useCallback((index) => {
+        // console.log('handleSheetChanges', index);
+    }, []);
 
-        console.log(`pressed ${markerId}`);
-        mapRef.current.animateCamera({ center: e.nativeEvent.coordinate }, { duration: 1000 });
-        setSelectedMarker(markerId);
+    const handleMarkerSelectionChange = (e, selectedMarkerId) => {
 
+        if(selectedMarkerId != null){
+         
+            const tapCoord = e.nativeEvent.coordinate;
+            
+            mapRef.current.pointForCoordinate(tapCoord).then((point) => {
+
+                if(point.y >= (windowHeight/2)){
+                    mapRef.current.getCamera().then((curCam) => {
+                        mapRef.current.animateCamera({ center: {latitude: tapCoord.latitude, longitude: curCam.center.longitude} }, { duration: 1000 });
+                    });
+                }
+            });
+
+            setSelectedMarker(selectedMarkerId);
+            bottomSheetModalRef.current?.snapToIndex(0);
+        } else {
+            // console.log("Deselected marker");
+            setSelectedMarker(null);
+            bottomSheetModalRef.current?.close();
+        }
     };
 
-
     return (
-        <ReactNativeMapView
-            showsUserLocation={true}
-            showsMyLocationButton={true}
-            ref={mapRef}
-            style={mapStyles.map}
+        <View style={mapStyles.container}>
+            <ReactNativeMapView
+                showsUserLocation={true}
+                showsMyLocationButton={true}
+                ref={mapRef}
+                style={mapStyles.map}
+                
+                initialRegion={initialRegion}
+                onPress={e => {
+                    handleMarkerSelectionChange(null);
+                }}
+            >
+                {landmarks.map((landmark, i) => (
+                        <ReactNativeMapView.Marker
+                            stopPropagation
+                            identifier={`${i}`}
+                            key={i}
+                            coordinate={{ longitude: landmark.longitude, latitude: landmark.latitude }}
+                            onPress={e => handleMarkerSelectionChange(e, i)}
+                            pinColor={selectedMarker === i ? "red" : "green"}
+                        />
+                    )
+                )}
+            </ReactNativeMapView>
+
             
-            initialRegion={initialRegion}
-            onPress={e => {
-                console.log("deselected");
-                setSelectedMarker(null);
-            }}
-        >
-            {markers.map((marker, i) => (
-                    <ReactNativeMapView.Marker
-                        stopPropagation
-                        identifier={`${i}`}
-                        key={i}
-                        coordinate={{ longitude: marker.longitude, latitude: marker.latitude }}
-                        onPress={e => handleMarkerPress(e, i)}
-                        pinColor={selectedMarker === i ? "red" : "green"}
-                    />
-                )
-            )}
-        </ReactNativeMapView>
+            <LandmarkBottomSheetView sheetRef={bottomSheetModalRef} handleSheetChanges={handleSheetChanges} landmark={selectedMarker != null ? landmarks[selectedMarker]: null}/>
+                
+        </View>
     );
 }
 
@@ -55,5 +85,5 @@ const mapStyles = StyleSheet.create({
     map: {
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height,
-    },
+    }
 });

@@ -1,68 +1,35 @@
-import { useRef, useMemo, useCallback } from 'react';
-import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import React, { useMemo } from 'react';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { StyleSheet, Text, View, Button, SafeAreaView, Pressable, Dimensions } from 'react-native';
 
-export default function BottomSheetModalView() {
 
-    const handleHomeScreenPress = () => {
-      bottomSheetModalRef.current.dismiss();
-      console.log("hereee");  
-    }
+export default function LandmarkBottomSheetView({sheetRef, handleSheetChanges, landmark}){
   
-    // ref
-    const bottomSheetModalRef = useRef(null);
-  
-    // variables
-    const snapPoints = useMemo(() => ['25%', '50%'], []);
-  
-    // callbacks
-    const handlePresentModalPress = useCallback(() => {
-      bottomSheetModalRef.current?.present();
-    }, []);
-    const handleSheetChanges = useCallback((index) => {
-      console.log('handleSheetChanges', index);
-    }, []);
-  
-    // renders
+    const snapPoints = useMemo(() => ['50%'], []);
+
     return (
-      <BottomSheetModalProvider>
-  
-        <Pressable onPress={handleHomeScreenPress} style={btmSheetModalStyles.container}>
-          <View >
-  
-            <Button
-              onPress={handlePresentModalPress}
-              title="Open Modal"
-            />
-  
-  
-            <BottomSheetModal
-              ref={bottomSheetModalRef}
-              index={1}
-              snapPoints={snapPoints}
-              onChange={handleSheetChanges}
-            >
-              <View style={btmSheetModalStyles.contentContainer}>
-                <Text>Awesome 🎉</Text>
-              </View>
-            </BottomSheetModal>
-  
+        <BottomSheet
+        ref={sheetRef}
+        index={-1}
+        snapPoints={snapPoints}
+        onChange={i => handleSheetChanges(i)}
+        enablePanDownToClose={true}
+        >
+          <View style={styles.container}>
+            {landmark && 
+              <Text>{landmark.name}</Text>
+            }
+            
           </View>
-        </Pressable>
-      </BottomSheetModalProvider >
+      </BottomSheet>
     );
-  };
+}
   
-  const btmSheetModalStyles = StyleSheet.create({
-    container: {
+const styles = StyleSheet.create({
+  container: {
       flex: 1,
-      padding: 24,
-      justifyContent: 'center',
-      backgroundColor: 'red',
-    },
-    contentContainer: {
-      flex: 1,
+      // backgroundColor: 'red',
       alignItems: 'center',
-    },
-  });
-  
+      justifyContent: 'center',
+  }
+});
