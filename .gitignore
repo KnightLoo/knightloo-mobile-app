@@ -34,3 +34,5 @@ xcuserdata
 
 # macOS
 .DS_Store
+
+firebase-config.js
