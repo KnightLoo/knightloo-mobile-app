@@ -17,9 +17,14 @@ function mod(n, m) {
     return ((n % m) + m) % m;
 }
 
-export default function filterBathroomResults(results, openBathroomsOnly, maxDistanceInFeet, usersLatLong){
+export default function filterBathroomResults(results, floorsFilter, openBathroomsOnly, maxDistanceInFeet, usersLatLong){
 
     let filteredResults = results;
+
+
+    if(floorsFilter != null){
+        filteredResults = filteredResults.filter(br => floorsFilter.includes(br.floor));
+    }
 
     if(openBathroomsOnly){
 

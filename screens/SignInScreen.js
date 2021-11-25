@@ -79,7 +79,7 @@ const flipOptions = {
 
 export default function SignInScreen({navigation, route}){
 
-    const {setIsAppWideLoading, signInToContinueSheetRef, setNeedsToShowReviewScreen} = useContext(AppContext);
+    const {setIsAppWideLoading, signInToContinueSheetRef, setNeedsToShowReviewScreen, setDidComeFromReviewButtonPress, didComeFromReviewButtonPress} = useContext(AppContext);
   
     const emailTextInputRef = useRef();
     const pwordTextInputRef = useRef();
@@ -136,9 +136,15 @@ export default function SignInScreen({navigation, route}){
 
                   signInToContinueSheetRef.current.close();
 
+                  
+
                   setTimeout(() => {
                     // navigation.navigate('Details View', {prevScreen: 'SignIn'});
-                    setNeedsToShowReviewScreen(true);
+                    if(didComeFromReviewButtonPress){
+                        setNeedsToShowReviewScreen(true);
+                        // setDidComeFromReviewButtonPress(false);
+                    }
+
                     navigation.goBack();
                   }, 10);
 

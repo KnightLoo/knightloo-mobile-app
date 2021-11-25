@@ -80,7 +80,7 @@ const flipOptions = {
 
 export default function SignUpScreen({navigation, route}){
 
-    const {setIsAppWideLoading, signInToContinueSheetRef, setNeedsToShowReviewScreen} = useContext(AppContext);
+    const {setIsAppWideLoading, signInToContinueSheetRef, setNeedsToShowReviewScreen, didComeFromReviewButtonPress, setDidComeFromReviewButtonPress} = useContext(AppContext);
 
     const nameTextInputRef = useRef();
     const emailTextInputRef = useRef();
@@ -170,7 +170,13 @@ export default function SignUpScreen({navigation, route}){
                       signInToContinueSheetRef.current.close();
 
                       setTimeout(() => {
-                        setNeedsToShowReviewScreen(true);
+
+                        if(didComeFromReviewButtonPress){
+                            setNeedsToShowReviewScreen(true);
+                            // setDidComeFromReviewButtonPress(false);
+                        }
+
+                        // setNeedsToShowReviewScreen(true);
                         console.log("here");
                         navigation.goBack();
                       }, 10);

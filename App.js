@@ -9,6 +9,7 @@ import AppContext, { AppProvider } from './contexts/AppContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 
+import AppLoading from 'expo-app-loading';
 // import firebase from 'firebase/app';
 
 
@@ -19,7 +20,10 @@ import * as Location from 'expo-location';
 // import {firebaseConfig} from './firebase-config';
 // import CachedImage from 'expo-cached-image';
 
-import BookmarksScreen from './screens/BookmarksScreen';
+// import BookmarksScreen from './screens/BookmarksScreen';
+import ViewOnMapScreen from './screens/ViewOnMapScreen';
+import BookmarksTab from './screens/BookmarksTab';
+
 import LeaveReviewScreen from './screens/LeaveReviewScreen';
 import FilterScreen from './screens/FilterScreen';
 import AccountScreen from './screens/AccountScreen';
@@ -31,6 +35,7 @@ import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import SignInToContinueBottomSheet from './components/SignInToContinueBottomSheet';
 
+import ReportIssueStackContext, {ReportIssueStackProvider} from './contexts/ReportIssueStackContext';
 
 import { createStackNavigator, CardStyleInterpolators, TransitionSpecs} from '@react-navigation/stack';
 import {HeaderBackButton} from '@react-navigation/elements';
@@ -56,6 +61,8 @@ export default function App() {
 
   const Stack = createStackNavigator();
 
+  const [isAppReady, setIsAppReady] = useState(false);
+
   const [filterQuery, setFilterQuery] = useState({});
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
@@ -65,8 +72,10 @@ export default function App() {
   const [curLandmarkHopData, setCurLandmarkHopData] = useState(null);
   const [editedMapLocation, setEditedMapLocation] = useState(null);
   const [selectedLandmark, setSelectedLandmark] = useState(null);
+  const [selectedBookmarkedLandmark, setSelectedBookmarkedLandmark] = useState(null);
 
   const [needsToShowReviewScreen, setNeedsToShowReviewScreen] = useState(false);
+  const [didComeFromReviewButtonPress, setDidComeFromReviewButtonPress] = useState(false);
 
   const [user, setUser] = useState(null);
   const [isAppWideLoading, setIsAppWideLoading] = useState(false);
@@ -79,6 +88,7 @@ export default function App() {
 
   const signInToContinueSheetRef = useRef();
   const editHoursOfOppRef = useRef();
+  const reportIssueScreenRef = useRef();
   const editMapScreenRef = useRef();
   const filterScreenRef = useRef();
   const bottomSheetModalRef = useRef();
@@ -95,28 +105,28 @@ export default function App() {
         console.log("user is not logged in");
       }
 
-      // try {
-      //   await (authenticatedUser ? setUser(authenticatedUser) : setUser(null));
-      //   setIsLoading(false);
-      // } catch (error) {
-      //   console.log(error);
-      // }
     });
 
     return unsubscribeAuth;
 
   }, []);
 
+  // useEffect(() => {
+
+  //   console.log("bookmark ids changed: ", bookmarkedLandmarkIds);
+
+  // }, [bookmarkedLandmarkIds]);
+
   useEffect(() => {
 
-    console.log("in useeffect for bookmarks");
+    // console.log("in useeffect for bookmarks");
 
     if(user && user.uid){
       const userBookmarksDocRef = db.collection("bookmarks").doc(user.uid);
 
       const unsubscribe = userBookmarksDocRef.onSnapshot((updatedDoc) => {
 
-        console.log("new update for bookmarks");
+        // console.log("new update for bookmarks");
         const updatedDocData = updatedDoc.data();
         if(updatedDocData){
           const updatedBookmarkIds = updatedDocData.bookmarkedLandmarkIds;
@@ -125,17 +135,25 @@ export default function App() {
             const newBmIdSet = new Set(updatedBookmarkIds);
             const curBmIdSet = new Set(bookmarkedLandmarkIds);
 
-            if(newBmIdSet.size != curBmIdSet.size || [...newBmIdSet].every(value => curBmIdSet.has(value))){
-              console.log("jkfdjsl;kjj");
+            if(newBmIdSet.size != curBmIdSet.size || !([...newBmIdSet].every(value => curBmIdSet.has(value)))){
+              // console.log("jkfdjsl;kjj");
+              // console.log(updatedBookmarkIds);
               setBookmarkedLandmarkIds(updatedBookmarkIds);
-              console.log(updatedBookmarkIds);
-            } 
+              
+            } else {
+              // console.log("&&&&&&&&&&&&& in here for some reason &&&&&&&&&&&&");
+            }
 
           } else {
-
-            if(bookmarkedLandmarkIds.length > 0){
-              setBookmarkedLandmarkIds([]);
-            }
+            // console.log("----------------- right before if ---------------");
+            // console.log("bmlIDs: ", bookmarkedLandmarkIds);
+            // console.log("cachedBmlIDs: ", cachedBookmarkedLandmarks);
+            // console.log("--------------------------------------------------");
+            setBookmarkedLandmarkIds([]);
+            // if(bookmarkedLandmarkIds.length > 0){
+            //   console.log("############ in if ################");
+            //   setBookmarkedLandmarkIds([]);
+            // }
           }
         } else {
           console.log("no bookmark doc data");
@@ -145,42 +163,62 @@ export default function App() {
       return unsubscribe;
     } else {
       console.log("doing nothing");
+      return;
     }
-
-    return;
-    
-    // const unsubscribe = 
 
   }, [user]);
 
-  useEffect(() => {
+//   useEffect(() => {
 
-    async function getLocation(){
+//     async function getLocation(){
 
-        console.log("getting user location");
+//         console.log("getting user location");
 
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            setWasLocationPermissionDenied(true);
-            return;
-        }
+//         let { status } = await Location.requestForegroundPermissionsAsync();
+//         if (status !== 'granted') {
+//             setWasLocationPermissionDenied(true);
+//             return;
+//         }
 
-        const userLocation = await Location.getCurrentPositionAsync({});
+//         const userLocation = await Location.getCurrentPositionAsync({});
 
-        const initialRegion = {
-            latitude: userLocation.coords.latitude || 37.78825,
-            longitude: userLocation.coords.longitude || -122.4324,
-            latitudeDelta: 0.015684156756595513,
-            longitudeDelta: 0.008579808767251507,
-        };
+//         const initialRegion = {
+//             latitude: userLocation.coords.latitude || 37.78825,
+//             longitude: userLocation.coords.longitude || -122.4324,
+//             latitudeDelta: 0.015684156756595513,
+//             longitudeDelta: 0.008579808767251507,
+//         };
 
-        setLocation(userLocation);
-        setRegion(initialRegion);
-    }
+//         setLocation(userLocation);
+//         setRegion(initialRegion);
+//     }
     
-      getLocation();
+//       getLocation();
     
-}, []);
+// }, []);
+
+async function getLocation(){
+
+  console.log("getting user location");
+
+  let { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted') {
+      setWasLocationPermissionDenied(true);
+      return;
+  }
+
+  const userLocation = await Location.getCurrentPositionAsync({});
+
+  const initialRegion = {
+      latitude: userLocation.coords.latitude || 37.78825,
+      longitude: userLocation.coords.longitude || -122.4324,
+      latitudeDelta: 0.015684156756595513,
+      longitudeDelta: 0.008579808767251507,
+  };
+
+  setLocation(userLocation);
+  setRegion(initialRegion);
+}
 
 
   return (
@@ -189,18 +227,14 @@ export default function App() {
                          setEditedMapLocation, location, region, bottomSheetModalRef, signInToContinueSheetRef, user, setUser,
                          isAppWideLoading, setIsAppWideLoading, selectedLandmark, setSelectedLandmark, needsToShowReviewScreen, 
                          setNeedsToShowReviewScreen, bookmarkedLandmarkIds, cachedBookmarkedLandmarks, setCachedBookmarkedLandmarks,
-                         needsToFetchBookmarks, setNeedsToFetchBookmarks}}>
+                         needsToFetchBookmarks, setNeedsToFetchBookmarks, reportIssueScreenRef, selectedBookmarkedLandmark, 
+                         setSelectedBookmarkedLandmark, didComeFromReviewButtonPress, setDidComeFromReviewButtonPress}}>
       <>
-      {location ? 
+      {location && isAppReady ? 
       (<NavigationContainer>
           <Stack.Navigator
               screenOptions={({route, navigation}) => {
                 
-                // console.log(route.name);
-                // console.log(navigation.getState());
-                // if(route.name != "Main App Flow"){
-
-                // }
 
                 return { 
                   safeAreaInsets: { top: 0 },
@@ -213,13 +247,6 @@ export default function App() {
                   headerTitleStyle: {
                       // color: 'white'
                   },
-                  // cardStyleInterpolator: ({ current, next }) => {
-                  //   console.log("-------------------------------------");
-                  //   console.log("in stack navigator");
-                  //   console.log(route.name);
-                  //   console.log("-------------------------------------");
-                  //   return {};
-                  // }
           }
               }}>
             <Stack.Screen
@@ -314,7 +341,7 @@ export default function App() {
                 name="Sign in Screen" 
                 component={SignInScreen}
                 options={({navigation, route}) => ({
-                    headerBackTitle: "Account",
+                    headerBackTitle: "Back",
                     // headerBackTitleStyle: {color: "#007bff"},
                     headerLeftContainerStyle: {paddingLeft: 5},
                     headerLeft: (props) => (
@@ -330,7 +357,6 @@ export default function App() {
                           });
 
                           setTimeout(() => {
-                            console.log("here");
                             navigation.goBack();
                           }, 10);
 
@@ -346,7 +372,7 @@ export default function App() {
                 name="Create Account Screen" 
                 component={SignUpScreen}
                 options={({navigation}) => ({
-                    headerBackTitle: "Account",
+                    headerBackTitle: "Back",
                     headerBackTitleStyle: {color: "#007bff"},
                     headerLeftContainerStyle: {paddingLeft: 5},
             
@@ -364,33 +390,11 @@ export default function App() {
                             });
 
                             setTimeout(() => {
-                              console.log("here");
                               navigation.goBack();
                             }, 10);
 
                         }}
                       />
-
-                      // <Button
-                      //     onPress={() => {
-                      //       navigation.setOptions({
-                      //         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, 
-                      //         transitionSpec: {
-                      //           open: TransitionSpecs.TransitionIOSSpec,
-                      //           close: TransitionSpecs.TransitionIOSSpec,
-                      //         }
-                      //       });
-
-                      //       setTimeout(() => {
-                      //         console.log("here");
-                      //         navigation.goBack();
-                      //       }, 10);
-
-                      //       // navigation.goBack();
-                      //     }}
-                      //     title={"Back"}
-                      //     color="#007bff"
-                      // />
                     )
                 })}
               />
@@ -405,30 +409,13 @@ export default function App() {
                   headerBackImage: () => <></>,
                   headerBackTitle: "Cancel",
                   headerBackTitleStyle: {marginLeft: 20},
-                  // headerRight: () => (
-                  //   <Pressable 
-                  //       style={{paddingRight: 20}}
-                  //       onPress={() => {
-                  //           console.log("Submit hours button pressed");
-                  //           navigation.goBack();
-                  //           // editHoursOfOppRef.current.addEditedHoursOfOpp();
-                  //       }}
-                  //   >
-                  //       {({ pressed }) => (
-                  //           <Text style={{opacity: pressed ? 0.25 : 1, elevation: 3, fontWeight: '600', color: "#007bff", fontSize: 17}}>
-                  //               Submit
-                  //           </Text>
-                  //       )}             
-                  //   </Pressable>
-                  // ), 
-                  // headerRightContainerStyle: {paddingRight: 20}
                 })} 
               />  
 
 
               <Stack.Screen 
                 name="Bookmark Map View" 
-                component={BookmarkMapView} 
+                component={ViewOnMapScreen} 
                 options={({navigation}) => ({ 
                   // headerBackImage: () => <></>,
                   headerBackTitle: "Back",
@@ -441,13 +428,31 @@ export default function App() {
           <StatusBar style="dark" />
       </NavigationContainer>)
 
-        : (<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            {wasLocationPermissionDenied ?
+        : 
+        // (<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        //     {wasLocationPermissionDenied ?
+        //       <Text>Location Permission was denied</Text> :
+        //       <Text>Loading</Text>
+        //     }
+        //     </View>
+        //   )
+        (<>
+          {wasLocationPermissionDenied ? (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
               <Text>Location Permission was denied</Text> :
-              <Text>Loading</Text>
-            }
             </View>
+          ) : (
+          <AppLoading
+            startAsync={getLocation}
+            onFinish={() => setIsAppReady(true)}
+            onError={() => {
+              console.warn("error getting location");
+            }}
+          />
           )
+          } 
+        
+        </>)
       }
       { isAppWideLoading &&
       <>
@@ -495,9 +500,11 @@ function MainAppFlow({navigation}){
       />
       <Tab.Screen 
           name="Saved Landmarks" 
-          component={BookmarksScreen} 
+          component={BookmarksTab} 
           options={{
-            tabBarLabel: "Saved Landmarks",
+            // title: "Saved Bathrooms",
+            headerShown: false,
+            tabBarLabel: "Saved",
             tabBarIcon: ({ focused }) => (
               <Ionicons name={focused ? "bookmarks" : "bookmarks-outline"} size={24} color="black" />
               // <MaterialCommunityIcons name={focused ? "account" : "account-outline"} size={24} color="black" />
@@ -505,6 +512,19 @@ function MainAppFlow({navigation}){
             tabBarActiveTintColor: "black"
           }}
       />
+      {/* <Tab.Screen 
+          name="Saved Landmarks" 
+          component={BookmarksScreen} 
+          options={{
+            title: "Saved Bathrooms",
+            tabBarLabel: "Saved",
+            tabBarIcon: ({ focused }) => (
+              <Ionicons name={focused ? "bookmarks" : "bookmarks-outline"} size={24} color="black" />
+              // <MaterialCommunityIcons name={focused ? "account" : "account-outline"} size={24} color="black" />
+            ),
+            tabBarActiveTintColor: "black"
+          }}
+      /> */}
       <Tab.Screen 
           name="Account" 
           component={AccountScreen} 
@@ -534,201 +554,37 @@ function BookmarkMapView({navigation}){
   );
 }
 
-// function  TestLoginModal({navigation}){
-
-//   return (
-//     <View opacity={1} style={{flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-end'}}>
-//         <Pressable style={{backgroundColor: 'black', flexGrow: 1, width: '100%', opacity: 0.2}}
-//           onPress={() => navigation.goBack()}
-//         >
-//         </Pressable>
-//         <View style={{backgroundColor: 'red', height: '40%', width: '80%', borderRadius: 25, borderWidth: 1}}>
-//       </View>
-//     </View>
-//   )
-// }
-
-// function  TestLoginModal({navigation}){
-
-//   return (
-//     <View opacity={1} style={{flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-end'}}>
-//       <Pressable 
-//         style={{backgroundColor: 'black', flexGrow: 1, width: '100%', opacity: 0.2}}
-//         onPress={() => navigation.goBack()} 
-//       />
-//       <View style={{flex: 1, alignItems: 'center', backgroundColor: 'white', position: 'absolute', top: Dimensions.get("window").height * 0.6, bottom: 0, left: 0, right: 0, borderRadius: 15 }}>
-        
-//         <View style={{width: '100%', marginTop: 25}}>
-//           <Text style={{textAlign: 'center', fontSize: 18}}>Create an account or log in to leave a review</Text>
-//         </View>
-
-//         <View style={styles.loginButtonsContainer}>
-
-//                 <Pressable 
-//                     style={({pressed}) => [styles.button, {backgroundColor: pressed ? 'gold' : 'gold', borderColor: 'gold', opacity: pressed ? 0.5 : 1}]}
-//                     onPress={() => console.log("sign in button pressed")}
-//                 >
-//                     {({pressed}) => (
-//                         <Text style={[styles.signInButtonText, {color: 'black'}]}>Sign In</Text>
-//                     )}
-//                 </Pressable>
-
-//                 <Pressable 
-//                     style={({pressed}) => [styles.button, {backgroundColor: pressed ? 'black' : 'black', borderColor: 'black', opacity: pressed ? 0.5 : 1}]}
-//                     onPress={() => console.log("create account button pressed")}
-//                 >
-//                     {({pressed}) => (
-//                         <Text style={[styles.createAccountButtonText,{color: 'white'}]}>Create Account</Text>
-//                     )}
-//                 </Pressable>
-
-
-//                 <View>
-                    
-//                 </View>
-
-//             </View>
-
-        
-//       </View>
-//     </View>
-//   )
-// }
-
-// export default function App() {
-
-//   const Tab = createBottomTabNavigator();
-  
-//   const [docData, setDocData] = useState(null);
-//   // const [imgUrl, setImgUrl] = useState(null);
-
-
-//   // useEffect(() => {
-
-//   //   (async () => {
-
-//   //     const storageRef = firebase.storage().ref();
-//   //     const fileRef = storageRef.child("IMG_2818.jpg");
-//   //     const url = await fileRef.getDownloadURL();
-//   //     console.log(url);
-
-//   //     setImgUrl(url);
-
-//   //     const doc = await firebase.firestore().collection("landmark_locations_data").doc("jCE0NA1qmArZ4HLHNjOe").get();
-
-//   //     if(doc.exists){
-//   //       console.log(doc.data());
-//   //       setDocData(doc.data());
-//   //     } else {
-//   //       console.log("doc doesnt exist");
-//   //     }
-
-//   //   })();
-
-//   // }, []);
-
-
-//   // return (
-
-//   //   <>
-//   //     {imgUrl ?
-
-//   //       <View style={styles.container}>
-
-//   //         <CachedImage 
-//   //           source={{ uri: imgUrl }}
-//   //           cacheKey={`img_test`}
-//   //           resizeMode="contain"
-//   //           style={
-//   //             styles.imageContainer
-//   //           }
-//   //         />
-
-//   //       </View>
-          
-      
-//   //     : <View><Text style={styles.paragraph}>Loading</Text></View>}
-//   //   </>
-
-
-//   // );
-
-//   return (
-//     <AppProvider>
-//       <NavigationContainer>
-        
-
-//         <Tab.Navigator 
-//           screenOptions={{
-//             tabBarStyle: { 
-//               // backgroundColor: '#202020',
-//               // borderTopColor: '#404040',
-//               // borderTopWidth: 1,
-    
-//             },
-//           }}>
-//           <Tab.Screen 
-//               name="Search" 
-//               component={LandmarkMapScreen} 
-//               options={{
-//                 headerShown: false,
-//                 tabBarLabel: "Search",
-//                 tabBarIcon: ({ focused }) => (
-//                   <Ionicons name={focused ? "search" : "search-outline"} size={24} color="black" />
-//                 ),
-//                 tabBarActiveTintColor: "black"
-//               }}
-//           />
-//           <Tab.Screen 
-//               name="Saved Landmarks" 
-//               component={TestStackScreen} 
-//               options={{
-//                 tabBarLabel: "Saved Landmarks",
-//                 tabBarIcon: ({ focused }) => (
-//                   <Ionicons name={focused ? "bookmarks" : "bookmarks-outline"} size={24} color="black" />
-//                   // <MaterialCommunityIcons name={focused ? "account" : "account-outline"} size={24} color="black" />
-//                 ),
-//                 tabBarActiveTintColor: "black"
-//               }}
-//           />
-//           <Tab.Screen 
-//               name="Account" 
-//               component={TestStackScreen} 
-//               options={{
-//                 tabBarLabel: "Account",
-//                 tabBarIcon: ({ focused }) => (
-//                   <Ionicons name={focused ? "person" : "person-outline"} size={24} color="black" />
-//                 ),
-//                 tabBarActiveTintColor: "black"
-//               }}
-//           />
-//         </Tab.Navigator>
-        
-//         <StatusBar style="dark" />
-//       </NavigationContainer>
-//     </AppProvider>
-//   );
-// }
-
-function TestStackScreen(){
-
-  return (
-    <View style={styles.container}>
-     <Text>
-        Second screen
-      </Text> 
-    </View>
-  );
-}
 
 
 function ReportIssueNestedStack({navigation}){
 
   const Stack = createStackNavigator();
 
-  const {editMapScreenRef} = useContext(AppContext);
+  const {editMapScreenRef, reportIssueScreenRef} = useContext(AppContext);
+
+  const [isReportIssueSubmitDisabled, setIsReportIssueSubmitDisabled] = useState(true);
+
+
+  const [hasNameBeenEdited, setHasNameBeenEdited] = useState(false);
+  const [hasLocationBeenEdited, setHasLocationBeenEdited] = useState(false);
+  const [hasHopBeenEdited, setHasHopBeenEdited] = useState(false);
+
+  // useEffect(() => {
+  //   console.log("report issue nested stack mounted");
+  // }, []);
+
+  useEffect(() => {
+    if(hasNameBeenEdited || hasLocationBeenEdited || hasHopBeenEdited){
+      setIsReportIssueSubmitDisabled(false);
+    } else {
+      setIsReportIssueSubmitDisabled(true);
+    }
+
+  },[hasNameBeenEdited, hasLocationBeenEdited, hasHopBeenEdited]);
+
 
   return (
+    <ReportIssueStackProvider value={{setHasNameBeenEdited, setHasLocationBeenEdited, setHasHopBeenEdited}}>
     <Stack.Navigator>
       <Stack.Screen 
           name="Edit Bathroom Details" 
@@ -763,13 +619,14 @@ function ReportIssueNestedStack({navigation}){
                 
               // />
               <Pressable 
-                  disabled={true}
+                  disabled={isReportIssueSubmitDisabled}
                   onPress={() => {
-                      console.log("Submit button pressed");
+                      console.log("Report issue submit button pressed");
+                      reportIssueScreenRef.current.submitLandmarkIssue();
                   }}
               >
                   {({ pressed }) => (
-                      <Text style={{opacity: pressed ? 0.25 : 1, elevation: 3, fontWeight: '600', color: "#007bff", fontSize: 17}}>
+                      <Text style={{opacity: pressed || isReportIssueSubmitDisabled  ? 0.25 : 1, elevation: 3, fontWeight: '600', color: isReportIssueSubmitDisabled ? "gray": "#007bff", fontSize: 17}}>
                           Submit
                       </Text>
                   )}
@@ -805,29 +662,9 @@ function ReportIssueNestedStack({navigation}){
           }} />
         
     </Stack.Navigator>
+    </ReportIssueStackProvider>
   );
 }
-
-// function ModalScreen({ navigation }) {
-
-//   return (
-//     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-//       <Text style={{ fontSize: 30 }}>This is a modal</Text>
-//       <Button onPress={() => navigation.navigate("Edit Location")} title="Go to 2nd modal" />
-//       <Button onPress={() => navigation.navigate("MyModal3")} title="Go to 3rd modal" />
-//       <Button onPress={() => navigation.goBack()} title="Dismiss" />
-//     </View>
-//   );
-// }
-
-// function MyModal2({ navigation }) {
-//   return (
-//     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-//       <Text style={{ fontSize: 30 }}>This is a modal 2</Text>
-//       <Button onPress={() => navigation.goBack()} title="Dismiss" />
-//     </View>
-//   );
-// }
 
 
 const styles = StyleSheet.create({

@@ -1,7 +1,8 @@
-import React, {useEffect, useState, useRef, useContext} from 'react';
+import React, {useEffect, useState, useRef, useContext, forwardRef, useImperativeHandle} from 'react';
 import { StyleSheet, Button, Text, TextInput, View, Dimensions, Pressable, Platform, ScrollView, SafeAreaView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, LayoutAnimation} from 'react-native';
 import AppContext from '../contexts/AppContext';
-
+import ReportIssueStackContext from '../contexts/ReportIssueStackContext';
+import * as Haptics from 'expo-haptics';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import MapView from 'react-native-maps';
@@ -9,156 +10,18 @@ import MapView from 'react-native-maps';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useHeaderHeight } from '@react-navigation/elements';
 
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import Firebase from '../utils/Firebase';
+
+const db = Firebase.firestore();
+
 const keyboardType = Platform.OS === "ios" ? "ascii-capable": "default";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { cloneDeep } from 'lodash';
-// latitudeDelta: 0.015684156756595513,
-// longitudeDelta: 0.008579808767251507,
-
-// function getUTCDateFromHoursAndMins(hour, min, dayTimeType){
-
-//     let hourMilTime = dayTimeType == "PM" ? ((hour % 12) + 12) : (hour % 12)
-
-//     let utcDate = new Date();
-//     utcDate.setUTCMonth(0);
-//     utcDate.setUTCDate(1);
-//     utcDate.setUTCFullYear(2021);
-//     utcDate.setUTCMilliseconds(0);
-//     utcDate.setUTCSeconds(0);
-//     utcDate.setUTCMinutes(min);
-//     utcDate.setUTCHours(hourMilTime);
-    
-//     return utcDate.getTime();
-// }
-
-// function convertDays(singleDayTimeslots){
-
-//     singleDayTimeslots
-
-//     let dayRanges = []
-
-//     for(const day of singleDayTimeslots.days){
-
-
-//     }
-
-    
-
-
-
-
-
-
-
-
-
-// function applyTimeslotUpdates(curRangesArr, updatedTimeslotData){
-
-//     const startUtcInMilli = updatedTimeslotData.startUtcInMilli;
-//     const endUtcInMilli = updatedTimeslotData.endUtcInMilli;
-//     const etRangeStrComps = updatedTimeslotData.etRangeStr.split("-");
-
-//     let newRangesArr = [...curRangesArr];
-
-//     if(updatedTimeslotData.isAllDay){
-//         for(const day of updatedTimeslotData.days){
-//             newRangesArr[day].isAllDay = true;
-//             newRangesArr[day].etRangeStr = "allday";
-//         }
-//     } else {
-
-//         for(const day of updatedTimeslotData.days){
-        
-//             curUTCRange = curRangesArr[day];
-
-//             let curEtRangeComps = curRangesArr[day].etRangeStr.split("-");
-//             let newEtStart = curEtRangeComps[0];
-//             let newEtEnd = curEtRangeComps[1];
-    
-//             if(curUTCRange.startUtcInMilli < startUtcInMilli){
-//                 newRangesArr[day].startUtcInMilli = startUtcInMilli;
-//                 newEtStart = etRangeStrComps[0];
-//             }
-    
-//             if(curUTCRange.endUtcInMilli > endUtcInMilli){
-//                 newRangesArr[day].endUtcInMilli = endUtcInMilli;
-//                 newEtEnd = etRangeStrComps[1];
-//             }
-    
-//             newRangesArr[day].isAllDay = false;
-//             newRangesArr[day].etRangeStr = newEtStart + "-" + newEtEnd;
-    
-//         }
-//     }
-
-//     const newHOPs = convertRangesArrToHopArr(newRangesArr);
-
-    
-//     return [newRangesArr, newHOPs];
-// }
-
-// function convertRangesArrToHopArr(rangesArr){
-
-//     // const utcRangeStrArr = utcRangeArr.map(utcRange => utcRange.isAllDay ? "allday": utcRange.startUtcInMilli + "-" + utcRange.endUtcInMilli);
-//     const rangesStrArr = rangesArr.map(range => range.etRangeStr);
-
-//     const uniqueRangeStrs = Array.from(new Set(rangesStrArr));
-
-//     let hopArr = [];
-
-//     for(const uniqueRangeStr of uniqueRangeStrs){
-        
-//         const rangeDays = rangesStrArr.map((hop, i) => hop === uniqueRangeStr ? i : -1).filter(index => index !== -1);
-
-//         if(uniqueRangeStr === "allday"){
-//             hopArr.push({
-//                 days: convertDaysArrToRangeStrings(rangeDays),
-//                 daysInNum: rangeDays,
-//                 isAllDay: true
-//             });
-//             continue;
-//         } else {
-
-//             // const utcRangeComps = uniqueUTCRange.split("-");
-
-//             // const utcStartDateObj = new Date(parseFloat(utcRangeComps[0]));
-//             // const utcEndDateObj = new Date(parseFloat(utcRangeComps[1]));
-    
-//             // const utcStartMilHour = utcStartDateObj.getUTCHours();
-//             // const utcEndMilHour = utcEndDateObj.getUTCHours();
-    
-//             // const {stdHour: startHour, dayTimeType: startDayTimeType} = getStandardHourDT(utcStartDateObj.getUTCHours());
-//             // const {stdHour: endHour, dayTimeType: endDayTimeType} = getStandardHourDT(utcendDateObj.getUTCHours());
-    
-//             const etRangeComps = uniqueRangeStr.split("-");
-//             const etStartComps = etRangeComps[0].split(":");
-//             const etEndComps = etRangeComps[1].split(":");
-//             const {stdHour: etStartHour, dayTimeType: etStartDayTimeType} =  getStandardHourDT(etStartComps[0]);
-//             const {stdHour: etEndHour, dayTimeType: etEndDayTimeType} =  getStandardHourDT(etEndComps[0]);
-    
-//             hopArr.push({
-//                 days: convertDaysArrToRangeStrings(rangeDays),
-//                 daysInNum: rangeDays,
-//                 isAllDay: false,
-//                 startEtHour: etStartHour,
-//                 startEtMin: etStartComps[1],
-//                 startEtDayTime: etStartDayTimeType,
-//                 endEtHour: etEndHour,
-//                 endEtMin: etEndComps[1],
-//                 endEtDayTime: etEndDayTimeType
-//             });
-
-//         }
-
-
-//     }
-
-// }
-
+import { cloneDeep, set } from 'lodash';
 
 
 const updatedTimeslotDataTest = {startUtcInMilli: 0, endUtcInMilli: 0, etRangeStr: "", isAllDay: false, days: [0, 1, 5]};
-
 
 const dummyTimeslots = [
     {
@@ -181,21 +44,61 @@ const dummyTimeslots = [
     }
 ];
 
-export default function ReportIssueScreen({ navigation }) {
+export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
 
-    const {landmarkUnderEdit, curLandmarkHopData, setCurLandmarkHopData, editedMapLocation} = useContext(AppContext);
+    const {landmarkUnderEdit, curLandmarkHopData, setCurLandmarkHopData, editedMapLocation, reportIssueScreenRef} = useContext(AppContext);
 
+    const {setHasNameBeenEdited, setHasLocationBeenEdited, setHasHopBeenEdited} = useContext(ReportIssueStackContext);
 
-    const [editedBathroomName, setEditedBathroomName] = useState(landmarkUnderEdit.name);
-
+    const [editedBathroomName, setEditedBathroomName] = useState(landmarkUnderEdit.building);
 
     const previewEditMapRef = useRef();
 
     const [mapCenter, setMapCenter] = useState(null);
 
-    // const [editedHoursOfOpp, setEditedHoursOfOpp] = useState(dummyTimeslots);
 
-    // const [editedRangeData, setEditedRangeData] = useState();
+    useImperativeHandle(reportIssueScreenRef, () => ({
+
+        async submitLandmarkIssue(){
+
+            console.log("in submit landmark issue");
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+
+            let edits = {};
+
+            if(editedBathroomName != null && editedBathroomName != "" && editedBathroomName != landmarkUnderEdit.building){
+                edits["edited_bathroom_name"] = editedBathroomName;
+            }
+
+            if(curLandmarkHopData != null && curLandmarkHopData.displayableHopData != null){
+                edits["edited_hop_data"] = cloneDeep(curLandmarkHopData);
+            }
+
+            if(editedMapLocation != null && (editedMapLocation.longitude != landmarkUnderEdit.longitude || editedMapLocation.latitude != landmarkUnderEdit.latitude)){
+                edits["edited_location_data"] = {
+                    "longitude": editedMapLocation.longitude, 
+                    "latitude": editedMapLocation.latitude
+                };
+            }
+
+            if(Object.keys(edits).length > 0){
+
+                edits["landmark_id"] = landmarkUnderEdit.id;
+
+                const landmarkReportedIssuesRef = db.collection("landmark_reported_issues");
+
+                try {
+
+                    await landmarkReportedIssuesRef.add(edits);
+                    navigation.goBack();
+                } catch(error){
+                    console.log("Error saving reported issue", error);
+                }
+            }
+        }
+    }));
+
+
 
     function getAffectedDayIndices(rangeStrsArr){
         const dayNameToIndex = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5, "Sun": 6};
@@ -259,11 +162,7 @@ export default function ReportIssueScreen({ navigation }) {
     const getCenterPosition = () => {
 
         previewEditMapRef.current.getCamera().then(camera => {
-            // console.log("cur camera: ", camera);
             previewEditMapRef.current.pointForCoordinate({latitude: camera.center.latitude, longitude: camera.center.longitude}).then(point => {
-                // console.log("camera xy: ", point);
-                // console.log("window width: ", Dimensions.get('window').width);
-                // console.log("window height: ", Dimensions.get('window').height);
                 console.log("inside getCenterPosition in report issue screen");
                 setMapCenter(point);
             });
@@ -275,20 +174,12 @@ export default function ReportIssueScreen({ navigation }) {
     const insets = useSafeAreaInsets();
 
     const offset = headerHeight + insets.top + 12;
-    console.log(offset);
-    // return (
-    //     <View style={{marginTop: 0, flex:1, width: '100%', backgroundColor: 'red'}} onLayout={(event) => console.log(event.nativeEvent.layout.height, Dimensions.get('screen').height, headerHeight, insets.top)}>
-    //     </View>
-    // );
+
 
     return (
-        // <View style={{flex: 1, backgroundColor: 'white'}}>
-        // contentContainerStyle={{flexGrow: 1}} keyboardVerticalOffset={110}
-        //onLayout={(event) => console.log(event.nativeEvent.layout.height, Dimensions.get('screen').height)}
         <KeyboardAvoidingView style={{flex: 1, backgroundColor: 'white'}} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={offset}>
             <ScrollView style={{flex: 1}} contentContainerStyle={{flexGrow: 1}}> 
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                {/* <View style={styles.screen}> */}
                     <>
                     <View style={styles.nameFieldContainer}>
                         <Text style={styles.fieldHeaderText}>Name</Text>
@@ -299,7 +190,15 @@ export default function ReportIssueScreen({ navigation }) {
                             style={styles.textInput} 
                             defaultValue={editedBathroomName}
                             autoCorrect={false}
-                            onChangeText={setEditedBathroomName}
+                            onChangeText={(newName) => {
+                                setEditedBathroomName(newName);
+                                
+                                if(newName != landmarkUnderEdit.building){
+                                    setHasNameBeenEdited(true);
+                                } else {
+                                    setHasNameBeenEdited(false);
+                                }
+                            }}
                             placeholder="Add Name" 
                             multiline={false}
                         />
@@ -466,7 +365,7 @@ export default function ReportIssueScreen({ navigation }) {
         </KeyboardAvoidingView> 
   
     );
-}
+});
 
 
 const styles = StyleSheet.create({

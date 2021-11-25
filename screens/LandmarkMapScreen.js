@@ -326,156 +326,61 @@ export default function LandmarkMapScreen({navigation, route}) {
 
     const {filterQuery, setRegion, region, location, selectedLandmark, setSelectedLandmark} = useContext(AppContext);
 
-    const [landmarks, setLandmarks] = useState(landmarksTest);
-    // useLayoutEffect(() => {
-    //     const routeName = getFocusedRouteNameFromRoute(route);
+    const [landmarks, setLandmarks] = useState(null);
+    const [isFetchingBathrooms, setIsFetchingBathrooms] = useState(false);
+    const [curMapRegion, setCurMapRegion] = useState(region);
 
-    //     console.log(routeName);
-
-    //     // if (routeName === "Filter Screen2"){
-    //     //     navigation.setOptions({tabBarStyle: {display: 'none'}});
-    //     // }else {
-    //     //     navigation.setOptions({tabBarStyle: {
-    //     //         display: 'flex',
-    //     //         backgroundColor: '#202020',
-    //     //         borderTopColor: '#404040',
-    //     //         borderTopWidth: 1,
-    //     //     }});
-    //     // }
-    //     if(routeName === "Map View" || routeName === "List View"){
-    //             navigation.setOptions({tabBarStyle: {
-    //             display: 'flex',
-    //             // backgroundColor: '#202020',
-    //             // borderTopColor: '#404040',
-    //             // borderTopWidth: 1,
-    //         }});
-    //     }
-    // }, [navigation, route]);
-
-
-
-    // const [location, setLocation] = useState(null);
-    // const [errorMsg, setErrorMsg] = useState(null);
-    // const [region, setRegion] = useState(null);
-
-    
     const backRef = useRef();
-    // const [selectedLandmark, setSelectedLandmark] = useState(null);
-
+ 
     useEffect(() => {
 
         async function getBathroomsFromDb(){
 
             const filQuery = filterQuery;
 
-            const query = createBathroomQuery(filQuery);
+            const {query, postFetchFilter} = createBathroomQuery(filQuery);
 
             if(query != null){
                 
-                // const querySnapshot = await getDocs(query);
-                const querySnapshot = await query.get();
+                setIsFetchingBathrooms(true);
+               
+                try {
+                    
+                    const querySnapshot = await query.get();
 
-                //   //     if(doc.exists){
-//   //       console.log(doc.data());
-//   //       setDocData(doc.data());
-//   //     } else {
-//   //       console.log("doc doesnt exist");
-//   //     }
-                if(querySnapshot.empty){
-                    console.log("no documents found");
-                    setSelectedLandmark(null);
-                    setLandmarks(null);
-                } else {
-                    // const bathrooms = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
-                    const bathrooms = querySnapshot.docs.map(doc => doc.data());
-                    const testUserLoc = [28.606680, -81.198185];
-                    // const filteredBathrooms = filterBathroomResults(bathrooms, filQuery.showOpenBathroomsOnly, filQuery.maxRadiusInFeet, testUserLoc);
-                    const filteredBathrooms = filterBathroomResults(bathrooms, filQuery.showOpenBathroomsOnly, filQuery.maxRadiusInFeet, [location.coords.latitude, location.coords.longitude]);
-                    setSelectedLandmark(null);
-
-                    if(filteredBathrooms && filteredBathrooms.length == 0){
+                    if(querySnapshot.empty){
+                        console.log("no documents found");
+                        setSelectedLandmark(null);
                         setLandmarks(null);
                     } else {
-                        // console.log("num filter brooms: ", filteredBathrooms.length);
-                        // console.log(filteredBathrooms[0].building);
-                        setLandmarks(filteredBathrooms);
+                     
+                        const bathrooms = querySnapshot.docs.map(doc => doc.data());
+                        const testUserLoc = [28.606680, -81.198185];
+    
+                        const filteredBathrooms = filterBathroomResults(bathrooms, postFetchFilter == "floors" ? filQuery.floors : null, filQuery.showOpenBathroomsOnly, filQuery.maxRadiusInFeet, [location.coords.latitude, location.coords.longitude]);
+                        setSelectedLandmark(null);
+    
+                        if(filteredBathrooms && filteredBathrooms.length == 0){
+                            setLandmarks(null);
+                        } else {
+                            setLandmarks(filteredBathrooms);
+                        }
                     }
+    
+                    setIsFetchingBathrooms(false);
+
+                } catch (error){
+                    console.log("error fetching bathrooms: ", error);
+                    setIsFetchingBathrooms(false);
                 }
             }
-            // setSelectedLandmark(null);
-            // setLandmarks(null);
         }
 
         if(Object.keys(filterQuery).length > 0){
-            // console.log(filterQuery);
-            // console.log("getting bathrooms from db");
             getBathroomsFromDb();
         }
 
     }, [filterQuery]);
-
-
-
-    // useEffect(() => {
-
-    //     console.log(filterQuery);
-
-    //     async function getLocation(){
-    //         let { status } = await Location.requestForegroundPermissionsAsync();
-    //         if (status !== 'granted') {
-    //             setErrorMsg('Permission to access location was denied');
-    //             return;
-    //         }
-
-    //         let location = await Location.getCurrentPositionAsync({});
-
-    //         let region = {
-    //             latitude: location.coords.latitude || 37.78825,
-    //             longitude: location.coords.longitude || -122.4324,
-    //             latitudeDelta: 0.015684156756595513,
-    //             longitudeDelta: 0.008579808767251507,
-    //         };
-
-    //         setLocation(location);
-    //         setRegion(region);
-    //     }
-
-    //     if(filterQuery == null){
-    //         getLocation();
-    //     } else {
-    //         setLandmarks(landmarksAfterQueryTestV2);
-    //         // mapRef.current.fitToElements({animated: false});
-    //     }
-
-        
-    //     // (async () => {
-    //     //     let { status } = await Location.requestForegroundPermissionsAsync();
-    //     //     if (status !== 'granted') {
-    //     //         setErrorMsg('Permission to access location was denied');
-    //     //         return;
-    //     //     }
-
-    //     //     let location = await Location.getCurrentPositionAsync({});
-
-    //     //     let region = {
-    //     //         latitude: location.coords.latitude || 37.78825,
-    //     //         longitude: location.coords.longitude || -122.4324,
-    //     //         latitudeDelta: 0.015684156756595513,
-    //     //         longitudeDelta: 0.008579808767251507,
-    //     //     };
-
-    //     //     setLocation(location);
-    //     //     setRegion(region);
-    //     // })();
-
-    // }, [filterQuery]);
-
-    // let text = 'Waiting..';
-    // if (errorMsg) {
-    //     text = errorMsg;
-    // } else if (location) {
-    //     text = JSON.stringify(location);
-    // }
 
 
     const handleSheetPress = () => {
@@ -483,11 +388,13 @@ export default function LandmarkMapScreen({navigation, route}) {
         navigation.navigate("Details View");
     };
 
+
+
     return (
 
         <>
             {region ?
-                <LandmarkMapProvider value={{region, landmarks, handleSheetPress, mapRef}}>
+                <LandmarkMapProvider value={{region, landmarks, handleSheetPress, mapRef, isFetchingBathrooms, curMapRegion, setCurMapRegion}}>
                     <Stack.Navigator
                         screenOptions={{ 
                             headerStyle: {
@@ -505,6 +412,7 @@ export default function LandmarkMapScreen({navigation, route}) {
                             name="Map View" 
                             component={MapView} 
                             options={({navigation}) => ({
+                                title: "Search",
                                 animationEnabled: true,
                                 headerLeft: () => (
                                     <Button
@@ -517,7 +425,6 @@ export default function LandmarkMapScreen({navigation, route}) {
                                 headerRight: () => (
                                 <Button
                                     onPress={() => {
-                                        // navigation.setOptions({tabBarStyle: {display: 'none'}});
                                         navigation.navigate("Filter Screen")
                                     }}
                                     title="Filter"
@@ -532,6 +439,7 @@ export default function LandmarkMapScreen({navigation, route}) {
                             name="List View" 
                             component={ListView}
                             options={({navigation}) => ({
+                                title: "Search",
                                 animationEnabled: true,
                                 headerLeft: () => (
                                     <Button
@@ -549,7 +457,6 @@ export default function LandmarkMapScreen({navigation, route}) {
                                 />
                                 ), 
                                 headerRightContainerStyle: {paddingRight: 5},
-                                // ...flipOptions
                             })}
                         />
                         <Stack.Screen 
@@ -594,23 +501,9 @@ export default function LandmarkMapScreen({navigation, route}) {
                
                 : <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>This shouldn't appear</Text></View>
             }
-
-            {/* <SignInToContinueBottomSheet navigation={navigation} signInToContinueSheetRef={signInToContinueSheetRef}/> */}
-
         </>
     );
 }
-
-
-// function ListView(){
-//     return(
-//         <View style={styles.screen}>
-//             <Text>
-//                 List View
-//             </Text>
-//         </View>
-//     );
-// }
 
 
 
@@ -623,5 +516,3 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     }
 });
-
-

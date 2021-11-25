@@ -13,30 +13,23 @@ export default function createBathroomQuery(filters){
 
     // let queryConstraints = [];
     let query = null;
+    let postFetchFilter = null;
+    let hasGenderFilter = false;
+    let hasFloorsFilter = false;
 
     if(filters.minStalls && filters.minStalls != 0){
         // queryConstraints.push(where("numMinStalls", ">=", filters.minStalls));
         console.log("minStalls");
+        
         if(query == null){
-            query = bathroomsRef.where("numMinStalls", ">=", filters.minStalls);
+            query = bathroomsRef.where("num_stalls", ">=", filters.minStalls);
         } else {
-            query = query.where("numMinStalls", ">=", filters.minStalls);
+            query = query.where("num_stalls", ">=", filters.minStalls);
         }
 
         // queryConstraints.push(bathroomsRef.where("numMinStalls", ">=", filters.minStalls));
     }
 
-    if(filters.floors && filters.floors.length > 0 && !filters.floors.includes(0)){
-        // queryConstraints.push(where("floor", "in", filters.selectedFloors));
-        // queryConstraints.push(bathroomsRef.where("floor", "in", filters.selectedFloors));
-        console.log("floors");
-
-        if(query == null){
-            query = bathroomsRef.where("floor", "in", filters.floors);
-        } else {
-            query = query.where("floor", "in", filters.floors);
-        }
-    }
 
     if(filters.showAccessibleBathroomsOnly){
         // queryConstraints.push(where("isHandicapAccessible", "==", true));
@@ -63,14 +56,33 @@ export default function createBathroomQuery(filters){
         genders.push("both");
     }
 
-    if(genders.length > 0){
+    if(genders.length > 0 && genders.length != 3){
         // queryConstraints.push(where("gender", "in", genders));
         // queryConstraints.push(bathroomsRef.where("gender", "in", genders));
+        hasGenderFilter = true;
+
         console.log("genders");
         if(query == null){
             query = bathroomsRef.where("gender", "in", genders);
         } else {
             query = query.where("gender", "in", genders);
+        }
+    }
+
+
+    if(filters.floors && filters.floors.length > 0 && !filters.floors.includes(0)){
+        // queryConstraints.push(where("floor", "in", filters.selectedFloors));
+        // queryConstraints.push(bathroomsRef.where("floor", "in", filters.selectedFloors));
+        console.log("floors");
+        hasFloorsFilter = true;
+
+        if(!hasGenderFilter){
+
+            if(query == null){
+                query = bathroomsRef.where("floor", "in", filters.floors);
+            } else {
+                query = query.where("floor", "in", filters.floors);
+            }
         }
     }
 
@@ -80,14 +92,14 @@ export default function createBathroomQuery(filters){
     // } 
 
     if(query != null){
-        return query;
+        return {query: query, postFetchFilter: hasFloorsFilter && hasGenderFilter ? "floors": null};
     }
 
     // if(filters.showOpenBathroomsOnly || filters.maxRadiusInFeet < 5600){
     //     return bathroomsRef;
     // }
 
-    return bathroomsRef;
+    return {query: bathroomsRef, postFetchFilter: null};
 
     // if(userLocation && filters.maxRadiusInFeet){
 

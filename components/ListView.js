@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useContext, useEffect, useLayoutEffect } from 'react';
-import { StyleSheet, Dimensions, View, Text, FlatList, SafeAreaView, StatusBar, Pressable, Easing} from 'react-native';
+import { StyleSheet, Dimensions, View, Text, FlatList, SafeAreaView, StatusBar, Pressable, Easing, ActivityIndicator} from 'react-native';
 import AppContext from '../contexts/AppContext';
 import LandmarkMapContext from '../contexts/LandmarkMapContext';
 import { CardStyleInterpolators, TransitionSpecs } from '@react-navigation/stack';
@@ -78,7 +78,7 @@ const flipOptions = {
 export default function ListView({navigation, route}){
 
     const {setSelectedLandmark} = useContext(AppContext);
-    const {landmarks} = useContext(LandmarkMapContext);
+    const {landmarks, isFetchingBathrooms} = useContext(LandmarkMapContext);
 
 
     const handleListItemPress = (index) => {
@@ -109,10 +109,10 @@ export default function ListView({navigation, route}){
             <FlatList
                 style={{width: '100%', flex: 1}}
                 ItemSeparatorComponent={() => <View style={styles.listItemSeparator} />}
-                contentContainerStyle={{borderTopWidth: 1, borderBottomWidth: 1, borderColor: 'gray'}}
+                contentContainerStyle={{flexGrow: 1, borderTopWidth: 1, borderBottomWidth: 0, borderColor: '#C8C8C8'}}
                 // ListHeaderComponent={<LandmarkDetailScreenHeader selectedLandmark={selectedLandmark} setModalVisible={setModalVisible} navigation={navigation} />}
                 ListHeaderComponentStyle={styles.headerComponentStyle}
-                ListEmptyComponent={landmarks != null ? <NoLandmarksView /> : <LoadingLandmarksView landmarks={landmarks}/> }
+                ListEmptyComponent={isFetchingBathrooms ? <LoadingLandmarksView /> : <NoLandmarksView />}
                 data={landmarks}
                 renderItem={({item, index}) => (
                     <Pressable style={styles.bathroomItemContainer} onPress={() => handleListItemPress(index)}>
@@ -126,17 +126,20 @@ export default function ListView({navigation, route}){
 
 function NoLandmarksView(){
     return (
-        <View>
-            <Text>No Bathrooms Found. Try broadening your filters.</Text>
-        </View>
+      <View style={{flexGrow: 1, justifyContent: 'flex-start', alignItems: 'center', borderWidth: 0}}>
+        <Text style={{fontSize: 24, fontWeight: '500', color: '#484848', marginTop: '30%'}}>No Bathrooms Found.</Text>
+        <Text style={{fontSize: 18, fontWeight: '400', color: '#696969', textAlign: 'center', marginHorizontal: 20, marginTop: 10}}>
+        Try broadening your filters to find more bathrooms.
+        </Text>
+      </View>
     );
 }
 
-function LoadingLandmarksView({landmarks}){
+function LoadingLandmarksView(){
     return (
-        <View style={styles.spinnerContainer}>
-            <ActivityIndicator animating={landmarks == null} />
-        </View>
+      <View style={{flexGrow: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator animating={true}/>
+      </View>
     );
 }
 

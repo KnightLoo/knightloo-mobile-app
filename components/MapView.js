@@ -92,7 +92,7 @@ const useComponentSize = () => {
 
 export default function MapView({navigation, route}) {
 
-    const {region: initialRegion, landmarks,  mapRef} = useContext(LandmarkMapContext);
+    const {region: initialRegion, landmarks,  mapRef, curMapRegion, setCurMapRegion} = useContext(LandmarkMapContext);
     const {bottomSheetModalRef, setSelectedLandmark} = useContext(AppContext);
 
     const [size, onLayout] = useComponentSize();
@@ -354,16 +354,20 @@ export default function MapView({navigation, route}) {
     return (
         <View style={mapStyles.container} onLayout={onLayout}>
             <ReactNativeMapView
+                tracksViewChanges={true}
+                onRegionChangeComplete={(region) => setCurMapRegion(region)}
                 // provider="google"
                 // userInterfaceStyle={'dark'}
                 animationEnabled={false}
+                
                 // tracksViewChanges={true}
                 showsUserLocation={true}
                 showsMyLocationButton={true}
                 ref={mapRef}
                 style={mapStyles.map}
                 
-                initialRegion={initialRegion}
+                // initialRegion={initialRegion}
+                initialRegion={curMapRegion || initialRegion}
                 onPress={e => {
                     handleMarkerSelectionChange(null);
                 }}

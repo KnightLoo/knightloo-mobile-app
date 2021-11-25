@@ -9,6 +9,8 @@ import LandmarkMapContext from '../contexts/LandmarkMapContext';
 export default function SignInToContinueBottomSheet({navigation, signInToContinueSheetRef}){
 
 
+    const {setDidComeFromReviewButtonPress} = useContext(AppContext);
+
     const snapPoints = useMemo(() => ['15%', '30%'], []);
 
     return (
@@ -34,6 +36,7 @@ export default function SignInToContinueBottomSheet({navigation, signInToContinu
                         style={({pressed}) => [styles.button, {backgroundColor: pressed ? 'gold' : 'gold', borderColor: 'gold', opacity: pressed ? 0.5 : 1}]}
                         onPress={() => {
                             console.log("sign in button pressed");
+                            setDidComeFromReviewButtonPress(true);
                             navigation.navigate("Sign in Screen", {prevScreen: 'DetailScreen'});
                         }}
                     >
@@ -46,6 +49,7 @@ export default function SignInToContinueBottomSheet({navigation, signInToContinu
                         style={({pressed}) => [styles.button, {backgroundColor: pressed ? 'black' : 'black', borderColor: 'black', opacity: pressed ? 0.5 : 1}]}
                         onPress={() => {
                             console.log("create account button pressed");
+                            setDidComeFromReviewButtonPress(true);
                             navigation.navigate("Create Account Screen", {prevScreen: 'DetailScreen'});
                         }}
                     >

@@ -1,16 +1,100 @@
 import React, { useState, useRef, useCallback, useContext, useEffect } from 'react';
-import { StyleSheet, Dimensions, View, Text } from 'react-native';
+import { StyleSheet, Dimensions, View, Text, Pressable, LayoutAnimation } from 'react-native';
 import AppContext from '../contexts/AppContext';
 import LandmarkMapContext from '../contexts/LandmarkMapContext';
 import CustomFastImage from './CustomFastImage';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import Firebase from '../utils/Firebase';
+const db = Firebase.firestore();
 
 
-export default function BathroomListItem({navigation, landmark}){
+export default function BathroomListItem({navigation, landmark, useRemoveBookmarkAnimation=false}){
+
+
+    const [isBookmarked, setIsBookmarked] = useState(false);
+    const {user, bookmarkedLandmarkIds} = useContext(AppContext);
+
+    useEffect(() => {
+
+      if(landmark && landmark.id){
+        if(bookmarkedLandmarkIds && bookmarkedLandmarkIds.length > 0){
+
+          if(useRemoveBookmarkAnimation && !bookmarkedLandmarkIds.includes(landmark.id)){
+            console.log(".............gonna use animationnnnnnnnn........");
+            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+            // LayoutAnimation.configureNext(
+            //   LayoutAnimation.create(
+            //     2000,
+            //     LayoutAnimation.Types.linear,
+            //     LayoutAnimation.Properties.scaleY
+            //   )
+            // );
+          } 
+          setIsBookmarked(bookmarkedLandmarkIds.includes(landmark.id));
+        } else {
+          if(useRemoveBookmarkAnimation){
+            console.log(".............gonna use animationnnnnnnnn..fkjkljklkjk......");
+            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+            // LayoutAnimation.configureNext(
+            //   LayoutAnimation.create(
+            //     2000,
+            //     LayoutAnimation.Types.linear,
+            //     LayoutAnimation.Properties.scaleY
+            //   )
+            // );
+          }
+          setIsBookmarked(false);
+        }
+      }
+
+    }, [bookmarkedLandmarkIds]);
 
     function mod(n, m) {
         return ((n % m) + m) % m;
     }
+
+    const handleToggleBookmark = () => {
+
+      const newIsBookmarked = !isBookmarked;
+
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+
+      if(user && landmark && landmark.id){
+        const userBookmarkDocRef = db.collection("bookmarks").doc(user.uid);
+
+        // if(useRemoveBookmarkAnimation && !newIsBookmarked){
+        //   console.log(".............gonna use animationnnnnnnnn........");
+        //   // LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        //   LayoutAnimation.configureNext(
+        //     LayoutAnimation.create(
+        //       2000,
+        //       LayoutAnimation.Types.linear,
+        //       LayoutAnimation.Properties.scaleY
+        //     )
+        //   );
+        // }
+
+        setIsBookmarked(newIsBookmarked);
+
+        userBookmarkDocRef.set({
+          bookmarkedLandmarkIds: newIsBookmarked ? firebase.firestore.FieldValue.arrayUnion(landmark.id) : firebase.firestore.FieldValue.arrayRemove(landmark.id)
+        }, { merge: true })
+        .then(() => {
+          console.log("Bookmarks updated successfully");
+        })
+        .catch((error) => {
+            console.error("Error updating bookmark ", error);
+        });
+      }
+      else {
+        console.log("nothing happening");
+      }
+      
+    };
 
     
     return (
@@ -20,20 +104,42 @@ export default function BathroomListItem({navigation, landmark}){
         <View style={styles.textContainer}>
             <Text style={styles.landmarkTitle}>{landmark.building}</Text>
             {/* <Text style={styles.landmarkDesc}>Knights Plaza</Text> */}
-            <Text style={styles.landmarkDesc}>{landmark.gender ? landmark.gender.charAt(0).toUpperCase() + landmark.gender.slice(1) : ""}</Text>
+            {/* <Text style={styles.landmarkDesc}>{landmark.gender ? landmark.gender.charAt(0).toUpperCase() + landmark.gender.slice(1) : ""}</Text> */}
+
+            <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingVertical: 4}}>
+                <Text style={styles.landmarkDesc}>{landmark.gender ? landmark.gender.charAt(0).toUpperCase() + landmark.gender.slice(1) : ""} </Text>
+                <Text style={styles.middleDot}>{'\u2B24'}</Text>
+                <Text style={styles.landmarkDesc}> {landmark.floorStr}</Text>
+              </View>
 
             <BathroomHoursOfOperationText hopData={landmark.hopData.flattenedHopDataForFilteringAndMutating[mod(new Date().getDay() - 1, 7)]}/>
             
             <View style={styles.handicapInfoContainer}>
 
-            {landmark.isHandicapAccessible ?
-                <Ionicons name="ios-checkmark-sharp" size={18} color={'green'} /> :
-                <Ionicons name="md-close-sharp" size={18} color="red" />
-            }
+              {landmark.isHandicapAccessible ?
+                  <Ionicons name="ios-checkmark-sharp" size={18} color={'green'} /> :
+                  <Ionicons name="md-close-sharp" size={18} color="red" />
+              }
 
-            <Text style={{paddingLeft: 5}}>Handicap Accessible</Text>
+              <Text style={{paddingLeft: 5}}>Handicap Accessible</Text>
             </View>
-        </View>       
+        </View>  
+
+        {user && user.uid &&
+          <View style={{position: 'relative', top: 0, bottom: 0, right: 0, left: 0, height: '100%', marginRight: 10, marginTop: 20}}>
+            <Pressable onPress={() => {
+
+              // if(useRemoveBookmarkAnimation){
+              //   handleToggleBookmark(isBookmarked, landmark, true);
+              // }
+              handleToggleBookmark();
+              
+            }} style={{position: 'relative'}}>
+              <MaterialIcons name={isBookmarked ? "bookmark" : "bookmark-border"} size={30} color="black" />
+            </Pressable>        
+          </View>
+        }
+
         <View>                 
             <CustomFastImage 
             source={{ uri: landmark.imgUrl }}
@@ -88,7 +194,7 @@ const styles = StyleSheet.create({
       flex: 1,
       alignSelf: 'center',
       paddingLeft: 12,
-      marginVertical: 5
+      marginVertical: 10
     },
     landmarkTitle:{
       // paddingLeft: 12,

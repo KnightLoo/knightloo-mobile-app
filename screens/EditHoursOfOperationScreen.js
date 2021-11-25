@@ -144,14 +144,14 @@ export default EditHoursOfOperationScreen = forwardRef( ({navigation}, ref) => {
                                 onPress={() => {
                                     let newIsDaySelected = [...isDaySelected];
                                     newIsDaySelected[i] = !newIsDaySelected[i];
-                                    setIsDaySelected(newIsDaySelected);
+                                    setIsDaySelected(newIsDaySelected); // 007bff b7a369
                                 }}
                             >
                                 <View style={[styles.dayItemContainer, {borderTopWidth: i !=0 ? 1 : 0}] }>
 
                                     <Text style={styles.dayItemText}>{day}</Text>
-
-                                    <Ionicons name="ios-checkmark-sharp" size={24} color={isDaySelected[i] ? '#007bff' : 'transparent'} />
+                                                            
+                                    <Ionicons name="ios-checkmark-sharp" size={24} color={isDaySelected[i] ? '#ffca06' : 'transparent'} />
                                     
                                 </View>
                             </Pressable>
@@ -205,7 +205,7 @@ export default EditHoursOfOperationScreen = forwardRef( ({navigation}, ref) => {
                                                 } else {
                                                     setExpandedTimePickerIndex(0);
                                                     setTimeout(() => {
-                                                        scrollViewRef.current.scrollToEnd({animated: true});
+                                                        scrollViewRef.current.scrollToEnd({animated: true}); // 007bff
                                                     }, 300);
                                                 }
                                                 
@@ -213,7 +213,7 @@ export default EditHoursOfOperationScreen = forwardRef( ({navigation}, ref) => {
                                         >
                                             <View style={styles.timePickerHeader}>
                                                 <Text style={styles.timePickerHeaderLabelText}>Opens</Text>
-                                                <Text style={[styles.timePickerHeaderTimeText, {color: expandedTimePickerIndex === 0 ? '#007bff': 'black'}]}>
+                                                <Text style={[styles.timePickerHeaderTimeText, {color: expandedTimePickerIndex === 0 ? '#ffca06': 'black'}]}>
                                                     {opensTimeHeaderText}
                                                 </Text>
                                             </View>

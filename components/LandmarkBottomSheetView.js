@@ -52,8 +52,8 @@ export default function LandmarkBottomSheetView({sheetRef, handleSheetChanges, l
 
       if(user && selectedLandmark && selectedLandmark.id){
         const userBookmarkDocRef = db.collection("bookmarks").doc(user.uid);
-        console.log(user.uid);
-        console.log("updating bookmarks");
+        // console.log(user.uid);
+        // console.log("updating bookmarks");
 
         setIsBookmarked(newIsBookmarked);
 
@@ -61,7 +61,7 @@ export default function LandmarkBottomSheetView({sheetRef, handleSheetChanges, l
           bookmarkedLandmarkIds: newIsBookmarked ? firebase.firestore.FieldValue.arrayUnion(selectedLandmark.id) : firebase.firestore.FieldValue.arrayRemove(selectedLandmark.id)
         }, { merge: true })
         .then(() => {
-          console.log("Bookmarks updated successfully");
+          // console.log("Bookmarks updated successfully");
         })
         .catch((error) => {
             console.error("Error updating bookmark ", error);
@@ -75,54 +75,10 @@ export default function LandmarkBottomSheetView({sheetRef, handleSheetChanges, l
     };
 
 
-    // const [imgUrl, setImgUrl] = useState(landmark != null ? landmark.imgUrl : null);
-    // const [cacheId, setCacheId] = useState(landmark != null ? landmark.id: null);
-
-    // function getHopText(){
-    //   const dayOfWeekInd = (new Date().getDay() - 1) % 7;
-
-    //   if(!landmark){
-    //     return "null";
-    //   }
-    //   const hopData = landmark.hopData.displayableHopData[dayOfWeekInd];
-
-    //   if(hopData.isAllDay){
-    //     return "Open All Day";
-    //   } else if(hopData.etRangeStr == "closed"){
-    //     return "Closed Today";
-    //   } else {
-    //     return "Open " + '\u2B24' + " " + hopData.etRangeStr;
-    //   }
-    // }
-
     function mod(n, m) {
       return ((n % m) + m) % m;
     }
 
-    // useEffect(() => {
-    //   console.log("bottom sheet use effect");
-    //   // const x = mod(new Date().getDay() - 1, 7);
-    //   // console.log(x);
-    // }, []);
-
-
-    // useEffect(() => {
-
-    //   // console.log("forcing update");
-    //   console.log(landmark ? "landmark is not null" : "landmark is NULL");
-    //   console.log(selectedLandmark ? "selectedLandmark is not null" : "selectedLandmark is NULL");
-    //   console.log("imgUrl: ", imgUrl);
-    //   console.log("cacheId: ", cacheId);
-
-    //   setCacheId(selectedLandmark != null ? selectedLandmark.id : null);
-    //   setImgUrl(selectedLandmark != null ? selectedLandmark.imgUrl : null);
-    //   // forceUpdate();
-    // }, [selectedLandmark]);
-
-    // const hopText = getHopText();
-
-    // console.log(landmark ? landmark.imgUrl : "");
-    // console.log(landmark ? landmark.id : "");
 
     return (
         <BottomSheet
@@ -140,8 +96,14 @@ export default function LandmarkBottomSheetView({sheetRef, handleSheetChanges, l
               
                 <View style={styles.textContainer}>
                   <Text style={styles.landmarkTitle}>{selectedLandmark.building}</Text>
+                  {/* <Text style={styles.landmarkDesc}>{selectedLandmark.floorStr}</Text> */}
                   {/* <Text style={styles.landmarkDesc}>Knights Plaza</Text> */}
-                  <Text style={styles.landmarkDesc}>{selectedLandmark.gender ? selectedLandmark.gender.charAt(0).toUpperCase() + selectedLandmark.gender.slice(1) : ""}</Text>
+                  {/* <Text style={styles.landmarkDesc}>{selectedLandmark.gender ? selectedLandmark.gender.charAt(0).toUpperCase() + selectedLandmark.gender.slice(1) : ""}</Text> */}
+                  <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingVertical: 4}}>
+                    <Text style={styles.landmarkDesc}>{selectedLandmark.gender ? selectedLandmark.gender.charAt(0).toUpperCase() + selectedLandmark.gender.slice(1) : ""} </Text>
+                    <Text style={styles.middleDot}>{'\u2B24'}</Text>
+                    <Text style={styles.landmarkDesc}> {selectedLandmark.floorStr}</Text>
+                  </View>
 
                   <BottomSheetHoursOfOperationText hopData={selectedLandmark.hopData.flattenedHopDataForFilteringAndMutating[mod(new Date().getDay() - 1, 7)]}/>
                   {/* <Text style={styles.landmarkDesc}>{hopText}</Text>
@@ -157,67 +119,26 @@ export default function LandmarkBottomSheetView({sheetRef, handleSheetChanges, l
                     <Text style={{paddingLeft: 5}}>Handicap Accessible</Text>
 
                   </View>
-
-
-                  
-
                 </View>
-
-                <View style={{position: 'relative', top: 0, bottom: 0, right: 0, left: 0, height: '100%', marginRight: 10, marginTop: 35}}>
-                  <Pressable onPress={() => {
-                    handleToggleBookmark();
-                    // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                    // setIsBookmarked(!isBookmarked);
-                  }}
-                  
-                  style={{position: 'relative'}}>
-                    {/* <Feather name={isBookmarked ? "bookmark"} size={30} color="black" /> */}
-                    <MaterialIcons name={isBookmarked ? "bookmark" : "bookmark-border"} size={30} color="black" />
-                  </Pressable>
-
-                  {/* <Pressable onPress={() => setIsBookmarked(!isBookmarked)} style={{position: 'absolute', top: 0, zIndex: -1}}>
-                  
-                    <MaterialIcons name={isBookmarked ? "bookmark" : "bookmark-border"} size={30} color="black" />
-                  </Pressable>  */}
-                    
-                </View>
-
                 
+                {user && user.uid &&
+                  <View style={{position: 'relative', top: 0, bottom: 0, right: 0, left: 0, height: '100%', marginRight: 10, marginTop: 35}}>
+                    <Pressable onPress={() => handleToggleBookmark()} style={{position: 'relative'}}>
+                      <MaterialIcons name={isBookmarked ? "bookmark" : "bookmark-border"} size={30} color="black" />
+                    </Pressable>
+                  </View>
+                }
                 
                 <View>
-                  {/* <Image 
-                    source={{ uri: landmark.imgUrl }}
-                    resizeMode="cover"
-                    style={styles.imageContainer}
-                  /> */}
-                 
-                  {/* <CustomFastImage 
-                    source={{ uri: selectedLandmark.imgUrl }}
-                    cacheKey={selectedLandmark.id}
-                    resizeMode="cover"
-                    style={styles.imageContainer}
-                  /> */}
+              
                   <CustomFastImage 
                     source={{ uri: selectedLandmark.imgUrl }}
                     cacheKey={selectedLandmark.id}
                     resizeMode="cover"
                     style={styles.imageContainer}>
-                      {/* <View style={{alignItems: 'flex-end', marginRight: 5, marginTop: 5}}>
-                        <Pressable onPress={() => setIsBookmarked(!isBookmarked)} style={{position: 'relative'}}>
-                          <Ionicons name={isBookmarked ? "ios-bookmark-outline" : "ios-bookmark-outline"} size={30} color={isBookmarked ? "black" : "black"} style={{opacity: isBookmarked ? 0.5 : 1}}  />
-                        </Pressable>
-
-                        <Pressable onPress={() => setIsBookmarked(!isBookmarked)} style={{position: 'absolute', top: 0, zIndex: -1}}>
-                          <Ionicons name={isBookmarked ? "ios-bookmark" : "ios-bookmark"} size={30} color={isBookmarked ? "black" : "gray"} style={{opacity: isBookmarked ? 1 : 0.5}} />
-                        </Pressable>
-                      </View> */}
-
-                      
-                      {/* <Ionicons name="md-bookmark-outline" size={24} color="white" /> */}
+                     
                   </CustomFastImage>
                   
-                  
-
                 </View>
                
               </View>
@@ -242,10 +163,7 @@ function BottomSheetHoursOfOperationText({hopData}){
   if(hopData.etRangeStr == "closed"){
     return <Text style={styles.closedText}>Closed</Text>
   }
-  // console.log("-----");
-  // console.log(hopData);
-  // console.log(hopData.etRangeStr);
-  // console.log("------");
+
   return (
     <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingVertical: 4}}>
       <Text style={styles.openText}>Open </Text>
@@ -310,7 +228,7 @@ const styles = StyleSheet.create({
   landmarkTitle:{
     // paddingLeft: 12,
     // paddingTop: 10,
-    fontSize: 17,
+    // fontSize: 17, 
     paddingVertical: 4,
     fontWeight: 'bold'
   },

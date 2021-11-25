@@ -1,12 +1,15 @@
 import React, {useEffect, useState, useRef, useContext, forwardRef, useImperativeHandle} from 'react';
 import { StyleSheet, Button, Text, View, Dimensions, Pressable } from 'react-native';
 import AppContext from '../contexts/AppContext';
+import ReportIssueStackContext from '../contexts/ReportIssueStackContext';
 import { FontAwesome5 } from '@expo/vector-icons';
 import MapView from 'react-native-maps';
 
 export default AdjustLocationScreen = forwardRef( ({navigation}, ref) => {
 
     const {landmarkUnderEdit, editMapScreenRef, setEditedMapLocation, editedMapLocation} = useContext(AppContext);
+    const {setHasLocationBeenEdited} = useContext(ReportIssueStackContext);
+
     const editLocationMapRef = useRef();
 
     const [mapCenter, setMapCenter] = useState(null);
@@ -16,6 +19,15 @@ export default AdjustLocationScreen = forwardRef( ({navigation}, ref) => {
         setEditedLocation(){
             editLocationMapRef.current.getCamera().then(camera => {
                 console.log(camera);
+                const editedLong = camera.center.longitude;
+                const editedLat = camera.center.latitude;
+
+                if(landmarkUnderEdit.longitude != editedLong || landmarkUnderEdit.latitude != editedLat){
+                    setHasLocationBeenEdited(true);
+                } else {
+                    setHasLocationBeenEdited(false);
+                }
+
                 setEditedMapLocation({longitude: camera.center.longitude, latitude: camera.center.latitude});
                 navigation.goBack();
             });
