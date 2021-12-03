@@ -1,18 +1,10 @@
 import React, {useEffect, useState, useRef, useContext, forwardRef, useImperativeHandle} from 'react';
-import { StyleSheet, Button, Text, TextInput, View, Dimensions, Pressable, Platform, ScrollView, Switch, StatusBar, LayoutAnimation } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Pressable, Platform, ScrollView, Switch, StatusBar, LayoutAnimation } from 'react-native';
 import AppContext from '../contexts/AppContext';
-
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
 import getTimeslotUpdates from '../utils/getTimeslotUpdates';
-// import { useIsFocused } from '@react-navigation/native';
 
-// function FocusAwareStatusBar(props) {
-//   const isFocused = useIsFocused();
-
-//   return isFocused ? <StatusBar {...props} /> : <StatusBar {...props} />;
-// }
 import Collapsible from 'react-native-collapsible';
 
 function getUTCDateFromHoursAndMins(hour, min, dayTimeType){
@@ -122,11 +114,7 @@ export default EditHoursOfOperationScreen = forwardRef( ({navigation}, ref) => {
             contentContainerStyle={{flexGrow: 1}} 
             ref={scrollViewRef}
             onContentSizeChange={() => {
-                console.log("scrollllling");
-                // setTimeout(() => {
-                //     scrollViewRef.current.scrollToEnd({animated: true});
-                // }, 1000);
-                
+                // console.log("scrollllling");
             }}
         >
             <View style={styles.screen}>
@@ -190,15 +178,6 @@ export default EditHoursOfOperationScreen = forwardRef( ({navigation}, ref) => {
                                             ]}
                                             onPress={() => {
 
-                                                // LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                                                // LayoutAnimation.configureNext(
-                                                //     LayoutAnimation.create(
-                                                //       400,
-                                                //       LayoutAnimation.Types.easeInEaseOut,
-                                                //       LayoutAnimation.Properties.opacity
-                                                //     )
-                                                //   );
-
                                                 if(expandedTimePickerIndex === 0){
                                                     scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
                                                     setExpandedTimePickerIndex(-1);
@@ -229,13 +208,10 @@ export default EditHoursOfOperationScreen = forwardRef( ({navigation}, ref) => {
                                                 value={selectedOpenTime}
                                                 mode="time"
                                                 minuteInterval={15}
-                                                // is24Hour={true}
                                                 display="spinner"
                                                 onChange={(_, date) => {
                                                     const {stdHour, dayTimeType} = getStandardHourDT(date.getHours());
                                                     const mins = date.getMinutes();
-                                                    
-                                                    // setSelectedOpenTime(new Date(getUTCDateFromHoursAndMins(stdHour, mins, dayTimeType)));
                                                     setOpensTimeHeaderText(stdHour + ":" + String(mins).padStart(2, '0') + " " + dayTimeType);
                                                     setSelectedOpenTime(new Date(2021, 0, 1, date.getHours(), mins, 0, 0));
                                                 }}
@@ -252,22 +228,6 @@ export default EditHoursOfOperationScreen = forwardRef( ({navigation}, ref) => {
                                         ]}
                                         onPress={() => {
 
-                                            // LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
-                                            // LayoutAnimation.configureNext(
-                                            //     LayoutAnimation.create(
-                                            //       500,
-                                            //       LayoutAnimation.Types.easeInEaseOut,
-                                            //       LayoutAnimation.Properties.opacity
-                                            //     )
-                                            //   );
-                                            
-                                            // if(expandedTimePickerIndex == -1){
-                                            //     scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
-                                            // }
-                                                
-                                        
-
                                             if(expandedTimePickerIndex === 1){
                                                 scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
                                                 setExpandedTimePickerIndex(-1);
@@ -280,10 +240,7 @@ export default EditHoursOfOperationScreen = forwardRef( ({navigation}, ref) => {
                                                 setTimeout(() => {
                                                     scrollViewRef.current.scrollToEnd({animated: true});
                                                 }, 300);
-                                                // scrollViewRef.current.scrollToEnd({animated: true});
                                             }
-                                            
-                                            
                                         }}
                                     >
                                         <View style={styles.timePickerHeader}>
@@ -294,32 +251,9 @@ export default EditHoursOfOperationScreen = forwardRef( ({navigation}, ref) => {
                                         </View>
                                     </Pressable>
 
-                                    {/* {expandedTimePickerIndex == 1 &&
-                                        <DateTimePicker
-                                            testID="dateTimePicker"
-                                            value={selectedCloseTime}
-                                            mode="time"
-                                            minuteInterval={15}
-                                            // is24Hour={true}
-                                            display="spinner"
-                                            onChange={(_, date) => {
-                                                const {stdHour, dayTimeType} = getStandardHourDT(date.getHours());
-                                                const mins = date.getMinutes();
-                                                setSelectedCloseTime(new Date(2021, 0, 1, stdHour, mins, 0, 0));
-                                                // setSelectedOpenTime(new Date(getUTCDateFromHoursAndMins(stdHour, mins, dayTimeType)));
-                                                setClosesTimeHeaderText(stdHour + ":" + String(mins).padStart(2, '0') + dayTimeType);
-                                            }}
-                                        />
-                                    } */}
-
                                     <Collapsible 
                                         collapsed={expandedTimePickerIndex != 1} 
                                         duration={500} renderChildrenCollapsed={false}
-                                        // onAnimationEnd={() => {
-                                        //     if(expandedTimePickerIndex == -1){
-                                        //         scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
-                                        //     }
-                                        // }}
                                     >
                                         <DateTimePicker
                                             testID="dateTimePicker"
@@ -331,57 +265,22 @@ export default EditHoursOfOperationScreen = forwardRef( ({navigation}, ref) => {
                                             onChange={(_, date) => {
                                                 const {stdHour, dayTimeType} = getStandardHourDT(date.getHours());
                                                 const mins = date.getMinutes();
-                                                
-                                                // setSelectedOpenTime(new Date(getUTCDateFromHoursAndMins(stdHour, mins, dayTimeType)));
                                                 setClosesTimeHeaderText(stdHour + ":" + String(mins).padStart(2, '0') + " " + dayTimeType);
                                                 console.log()
                                                 setSelectedCloseTime(new Date(2021, 0, 1, date.getHours(), mins, 0, 0));
                                             }}
                                         />
                                     </Collapsible>
-                                   
-                                    
-                                    
                                 </View>
                                     
                                 </>
                                 </Collapsible>
-                    
                         </View>
-                        
                     </View>
-                    
-                    
-                    {/* <View style={styles.daySelectListContainer}>
-
-                        <View style={styles.dayItem}> 
-                            <Text>Monday</Text>
-                        </View>
-                        <View style={styles.dayItem}> 
-                            <Text>Tuesday</Text>
-                        </View>
-                        <View style={styles.dayItem}> 
-                            <Text>Wednesday</Text>
-                        </View>
-                        <View style={styles.dayItem}> 
-                            <Text>Thursday</Text>
-                        </View>
-                        <View style={styles.dayItem}> 
-                            <Text>Friday</Text>
-                        </View>
-                        <View style={styles.dayItem}> 
-                            <Text>Saturday</Text>
-                        </View>
-                        <View style={styles.dayItem}> 
-                            <Text>Sunday</Text>
-                        </View>
-                    </View> */}
-                
                 </View>
             </View>
         </ScrollView>
       </View>
-        {/* <FocusAwareStatusBar style="light-content"/> */}
       </>
     );
 });
@@ -397,18 +296,10 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         justifyContent: 'flex-start',
-        // backgroundColor: '#fff',
-        // alignItems: 'flex-start',
-        // justifyContent: 'flex-start',
-        // marginTop: StatusBar.currentHeight || 0,
         width: '100%',
-        // height: 300,
-        // borderWidth: 1, 
-        // borderColor: 'red'
-
     },
     daySelectFieldContainer: {
-        flex: 1, //
+        flex: 1, 
         width: '100%',
         marginTop: 20,
     },
@@ -425,7 +316,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 14,
         borderTopColor: '#D3D3D3',
-        // borderTopWidth: 1,
         marginLeft: 18,
         paddingRight: 18
     },
@@ -440,7 +330,6 @@ const styles = StyleSheet.create({
         paddingLeft: 15,
     },
     timeSelectFieldContainer: {
-        // flex: 1, //
         width: '100%',
         marginTop: 20,
         marginBottom: 50
@@ -453,15 +342,12 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     openAllDaySwitchContainer: {
-        // flex: 1, //
         width: '100%',
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 15,
         marginTop: 15,
         paddingBottom: 15,
-        // borderBottomColor: "#D3D3D3",
-        // borderBottomWidth: 1
     },
     openAllDaySwitchTitle: {
         alignSelf: 'center',
@@ -487,5 +373,4 @@ const styles = StyleSheet.create({
     timePickerHeaderTimeText: {
         fontSize: 17
     }
-
 });

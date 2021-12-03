@@ -1,39 +1,23 @@
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import React, {useCallback, useEffect, useState, useRef, useContext} from 'react';
-import { StyleSheet, Button, Text, View, Dimensions, Pressable, Platform, UIManager, Easing, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useRef, useContext } from 'react';
+import { StyleSheet, Text, View, Dimensions, Pressable, Platform, UIManager, ActivityIndicator } from 'react-native';
 import LandmarkMapScreen from './screens/LandmarkMapScreen';
-import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AppContext, { AppProvider } from './contexts/AppContext';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-
 import AppLoading from 'expo-app-loading';
-// import firebase from 'firebase/app';
-import {
-  BottomSheetModalProvider,
-} from '@gorhom/bottom-sheet';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import { createStackNavigator, CardStyleInterpolators, TransitionSpecs} from '@react-navigation/stack';
+import {HeaderBackButton} from '@react-navigation/elements';
 
-
-
-// import * as firebase from 'firebase';
-// import { firestore } from 'firebase'; 
-// import { doc, getDoc } from "firebase/firestore";
-// import {firebaseConfig} from './firebase-config';
-// import CachedImage from 'expo-cached-image';
-
-// import BookmarksScreen from './screens/BookmarksScreen';
 import ViewOnMapScreen from './screens/ViewOnMapScreen';
 import BookmarksTab from './screens/BookmarksTab';
-
 import LeaveReviewScreen from './screens/LeaveReviewScreen';
 import FilterScreen from './screens/FilterScreen';
-
-import AccountScreen from './screens/AccountScreen';
 import AccountStack from './screens/AccountStack';
-
 import AdjustLocationScreen from './screens/AdjustLocationScreen';
 import ReportIssueScreen from './screens/ReportIssueScreen';
 import EditHoursOfOperationScreen from './screens/EditHoursOfOperationScreen';
@@ -41,27 +25,15 @@ import LoginToContinuePopup from './screens/LoginToContinuePopup';
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import SignInToContinueBottomSheet from './components/SignInToContinueBottomSheet';
-
-import ReportIssueStackContext, {ReportIssueStackProvider} from './contexts/ReportIssueStackContext';
-
-import { createStackNavigator, CardStyleInterpolators, TransitionSpecs} from '@react-navigation/stack';
-import {HeaderBackButton} from '@react-navigation/elements';
+import {ReportIssueStackProvider} from './contexts/ReportIssueStackContext';
 
 import Firebase from './utils/Firebase';
 const db = Firebase.firestore();
-
 const auth = Firebase.auth();
-
-// if(firebase.apps.length === 0){
-//   firebase.initializeApp(firebaseConfig);
-// }
-
-// const db = firebase.firestore();
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
-
 
 
 export default function App() {
@@ -73,7 +45,6 @@ export default function App() {
   const [filterQuery, setFilterQuery] = useState({});
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
-  // const [wasLocationPermissionDenied, setWasLocationPermissionDenied] = useState(false);
   const [locationRelatedError, setLocationRelatedError] = useState(null);
 
   const [landmarkUnderReview, setLandmarkUnderReview] = useState(null);
@@ -139,33 +110,20 @@ export default function App() {
             const curBmIdSet = new Set(bookmarkedLandmarkIds);
 
             if(newBmIdSet.size != curBmIdSet.size || !([...newBmIdSet].every(value => curBmIdSet.has(value)))){
-              // console.log("jkfdjsl;kjj");
-              // console.log(updatedBookmarkIds);
               setBookmarkedLandmarkIds(updatedBookmarkIds);
-              
-            } else {
-              // console.log("&&&&&&&&&&&&& in here for some reason &&&&&&&&&&&&");
             }
 
           } else {
-            // console.log("----------------- right before if ---------------");
-            // console.log("bmlIDs: ", bookmarkedLandmarkIds);
-            // console.log("cachedBmlIDs: ", cachedBookmarkedLandmarks);
-            // console.log("--------------------------------------------------");
             setBookmarkedLandmarkIds([]);
-            // if(bookmarkedLandmarkIds.length > 0){
-            //   console.log("############ in if ################");
-            //   setBookmarkedLandmarkIds([]);
-            // }
           }
         } else {
-          console.log("no bookmark doc data");
+          // console.log("no bookmark doc data");
         }
       });
 
       return unsubscribe;
     } else {
-      console.log("doing nothing");
+      // console.log("doing nothing");
       return;
     }
 
@@ -174,14 +132,9 @@ export default function App() {
 
   async function getLocation(){
 
-    console.log("getting user location");
-
-    console.log("about to ask for permission");
-
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
         console.log("denied");
-        // setWasLocationPermissionDenied(true);
         setLocationRelatedError("Location services must be enabled in order to use this app.");
         return;
     } else {
@@ -207,13 +160,12 @@ export default function App() {
       setRegion(initialRegion);
 
     } catch(error){
-      console.log("errrror: ", error);
+      console.log("error: ", error);
     }
   }
 
 
   return (
-    // <BottomSheetModalProvider>
     <AppProvider value={{filterQuery, setFilterQuery, filterScreenRef, landmarkUnderEdit, setLandmarkUnderEdit, 
                          curLandmarkHopData, setCurLandmarkHopData, editHoursOfOppRef, editMapScreenRef, editedMapLocation, 
                          setEditedMapLocation, location, region, bottomSheetModalRef, signInToContinueSheetRef, user, setUser,
@@ -252,7 +204,6 @@ export default function App() {
             <Stack.Screen 
                 name="Filter Screen" 
                 component={FilterScreen}
-                // ref={backRef}
                 ref={filterScreenRef}
                 options={{
                     title:"Filters",
@@ -260,14 +211,6 @@ export default function App() {
                     headerBackTitle: "Back",
                     headerBackTitleStyle: {color: "#007bff"},
                     headerLeftContainerStyle: {paddingLeft: 5},
-                    // headerRight: () => (
-                    //     <Button
-                    //         onPress={() => filterScreenRef.current.resetFilters()}
-                    //         title="Reset"
-                    //         color="#007bff"
-                  
-                    //     />
-                    // ), 
                     headerRight: () => (
                       <Pressable
                         onPress={() => filterScreenRef.current.resetFilters()}
@@ -280,7 +223,6 @@ export default function App() {
                                       
                       </Pressable>
                     ),
-                    // headerRightContainerStyle: {paddingRight: 5}
                     headerRightContainerStyle: {paddingRight: 20}
                 }}
               />
@@ -337,7 +279,6 @@ export default function App() {
                         )}             
                     </Pressable>
                   ), 
-                  // headerRightContainerStyle: {paddingRight: 20}
                   headerLeftContainerStyle: {paddingLeft: 20}
                 })} 
               />
@@ -366,7 +307,6 @@ export default function App() {
                 options={({navigation, route}) => ({
                     title: "Sign in",
                     headerBackTitle: "Back",
-                    // headerBackTitleStyle: {color: "#007bff"},
                     headerLeftContainerStyle: {paddingLeft: 5},
                     headerLeft: (props) => (
                       <HeaderBackButton
@@ -458,25 +398,14 @@ export default function App() {
                 name="Bookmark Map View" 
                 component={ViewOnMapScreen} 
                 options={({navigation}) => ({ 
-                  // headerBackImage: () => <></>,
                   headerBackTitle: "Back",
-                  // headerBackTitleStyle: {marginLeft: 20},
                 })} 
               /> 
 
 
           </Stack.Navigator>
           <StatusBar style="dark" />
-      </NavigationContainer>)
-
-        : 
-        // (<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        //     {wasLocationPermissionDenied ?
-        //       <Text>Location Permission was denied</Text> :
-        //       <Text>Loading</Text>
-        //     }
-        //     </View>
-     //style={{fontSize: 20, fontWeight: '600'}}>Location services must be enabled in order to use this app.
+      </NavigationContainer>) : 
         (<>
           {locationRelatedError ? (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -508,42 +437,29 @@ export default function App() {
       }
       </>
     </AppProvider>
-    // </BottomSheetModalProvider>
   );
 }
 
 function MainAppFlow({navigation}){
-
   
   const Tab = Platform.OS === "ios" ? createBottomTabNavigator() : createMaterialBottomTabNavigator();
-
 
   const {signInToContinueSheetRef} = useContext(AppContext);
 
   return (
     <>
-    {/* <>
-    <SignInToContinueBottomSheet style={{zIndex: 110}} navigation={navigation} signInToContinueSheetRef={signInToContinueSheetRef}/>
-</> */}
-    {/* <View style={{display: 'flex', flex: 1, zIndex: 100}}> */}
     <>
     <Tab.Navigator 
     barStyle={{
-      // borderTopWidth: 0.5,
-      // borderTopColor: 'gray',
       borderTopColor: 'gray',
       borderTopWidth: 0.5,
-      // paddingTop: 0,
       backgroundColor: 'white'
     }}
       screenOptions={{
-      
         tabBarStyle: { 
-         
           // backgroundColor: '#202020',
           // borderTopColor: '#404040',
           // borderTopWidth: 1,
-
         },
       }}>
       <Tab.Screen 
@@ -562,29 +478,15 @@ function MainAppFlow({navigation}){
           name="Saved Landmarks" 
           component={BookmarksTab} 
           options={{
-            // title: "Saved Bathrooms",
             headerShown: false,
             tabBarLabel: "Saved",
             tabBarIcon: ({ focused }) => (
               <Ionicons name={focused ? "bookmarks" : "bookmarks-outline"} size={24} color="black" />
-              // <MaterialCommunityIcons name={focused ? "account" : "account-outline"} size={24} color="black" />
             ),
             tabBarActiveTintColor: "black"
           }}
       />
-      {/* <Tab.Screen 
-          name="Saved Landmarks" 
-          component={BookmarksScreen} 
-          options={{
-            title: "Saved Bathrooms",
-            tabBarLabel: "Saved",
-            tabBarIcon: ({ focused }) => (
-              <Ionicons name={focused ? "bookmarks" : "bookmarks-outline"} size={24} color="black" />
-              // <MaterialCommunityIcons name={focused ? "account" : "account-outline"} size={24} color="black" />
-            ),
-            tabBarActiveTintColor: "black"
-          }}
-      /> */}
+
       <Tab.Screen 
           name="Account Stack" 
           component={AccountStack} 
@@ -600,12 +502,9 @@ function MainAppFlow({navigation}){
       />
     </Tab.Navigator>
   </>
-  {/* </View> */}
-    {/* <View style={{position: 'absolute', zIndex: 110}}> */}
-    
+
     <SignInToContinueBottomSheet navigation={navigation} signInToContinueSheetRef={signInToContinueSheetRef}/>
       
-    {/* </View> */}
 
   </>
   );
@@ -630,15 +529,9 @@ function ReportIssueNestedStack({navigation}){
   const {editMapScreenRef, reportIssueScreenRef} = useContext(AppContext);
 
   const [isReportIssueSubmitDisabled, setIsReportIssueSubmitDisabled] = useState(true);
-
-
   const [hasNameBeenEdited, setHasNameBeenEdited] = useState(false);
   const [hasLocationBeenEdited, setHasLocationBeenEdited] = useState(false);
   const [hasHopBeenEdited, setHasHopBeenEdited] = useState(false);
-
-  // useEffect(() => {
-  //   console.log("report issue nested stack mounted");
-  // }, []);
 
   useEffect(() => {
     if(hasNameBeenEdited || hasLocationBeenEdited || hasHopBeenEdited){
@@ -657,12 +550,8 @@ function ReportIssueNestedStack({navigation}){
           name="Edit Bathroom Details" 
           component={ReportIssueScreen} 
           options={({navigation}) => ({ 
-            // headerStatusBarHeight: 0,
-            // cardOverlayEnabled: true,
             cardStyle: {
               backgroundColor: 'transparent',
-              // opacity:0.99
-              // height: 400
             },
             cardStyleInterpolator: ({ current: { progress } }) => ({
               cardStyle: {
@@ -673,7 +562,6 @@ function ReportIssueNestedStack({navigation}){
             }}),
             presentation: 'transparentModal', 
             gestureEnabled: false,
-            // headerShown: false,
             headerBackImage: () => <></>,
             headerStyle: {backgroundColor: 'transparent'},
             headerBackTitle: "Cancel",
@@ -695,12 +583,6 @@ function ReportIssueNestedStack({navigation}){
               </Pressable>
             ),
             headerRight: () => (
-              // <Button
-              //     onPress={() => console.log("Here")}
-              //     title="Submit"
-              //     color="#007bff"
-                
-              // />
               <Pressable 
                   disabled={isReportIssueSubmitDisabled}
                   onPress={() => {
@@ -742,7 +624,6 @@ function ReportIssueNestedStack({navigation}){
                   )}             
               </Pressable>
             ), 
-            // headerRightContainerStyle: {paddingRight: 20}
           }} />
         
     </Stack.Navigator>

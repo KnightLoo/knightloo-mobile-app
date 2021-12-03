@@ -1,14 +1,12 @@
-import React, {useEffect, useState, useRef, useContext, forwardRef, useImperativeHandle, useLayoutEffect} from 'react';
-import { StyleSheet, Button, Text, View, Dimensions, Pressable, TextInput, Platform, Image, Easing, Alert } from 'react-native';
+import React, { useEffect, useState, useRef, useContext, useLayoutEffect } from 'react';
+import { StyleSheet, Text, View, Pressable, TextInput, Platform, Image, Easing } from 'react-native';
 import AppContext from '../contexts/AppContext';
-// import knightloo_logo from '../assets/knightloo_logo.jpg';
 import {CardStyleInterpolators, TransitionSpecs} from '@react-navigation/stack';
 import Firebase from '../utils/Firebase';
 
 const auth = Firebase.auth();
 
 const keyboardType = Platform.OS === "ios" ? "ascii-capable": "default";
-
 
 const flipOptions = {
     headerBackTitle: "Back",
@@ -92,7 +90,6 @@ export default function SignInScreen({navigation, route}){
 
 
     useLayoutEffect(() => {
-        console.log("Sign in screen:::prev screen: ", route.params.prevScreen);
 
         if(route.params.prevScreen == "CreateAccount"){
             navigation.setOptions(flipOptions);
@@ -118,8 +115,6 @@ export default function SignInScreen({navigation, route}){
 
         if(!newEmailError && !newPwordError){
 
-            console.log("here");
-
             try {
                 setIsAppWideLoading(true);
                 await auth.signInWithEmailAndPassword(email, password);
@@ -136,13 +131,9 @@ export default function SignInScreen({navigation, route}){
 
                   signInToContinueSheetRef.current.close();
 
-                  
-
                   setTimeout(() => {
-                    // navigation.navigate('Details View', {prevScreen: 'SignIn'});
                     if(didComeFromReviewButtonPress){
                         setNeedsToShowReviewScreen(true);
-                        // setDidComeFromReviewButtonPress(false);
                     }
 
                     navigation.goBack();
@@ -172,18 +163,8 @@ export default function SignInScreen({navigation, route}){
     return (
         <Pressable onPress={blurAllInputs} style={styles.screen}>
 
-            {/* <View style={styles.signInMessageContainer}>
-                <Text style={styles.signInMessageText}>Sign In</Text>
-            </View> */}
-
             <View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 20}}>
                 <Image source={require('../assets/knightloo_logo.jpg')} style={{ width: 324 / 2, height: 362 / 2, borderWidth: 0}} /> 
-                {/* <CustomFastImage 
-                    source={{ uri: '../assets/knightloo_logo.jpg'}}
-                    cacheKey="kl_logo"
-                    resizeMode="cover"
-                    style={{ width: 324 / 2, height: 362 / 2}}
-                /> */}
             </View>
             
 
@@ -193,9 +174,7 @@ export default function SignInScreen({navigation, route}){
                         ref={emailTextInputRef}
                         clearButtonMode={'while-editing'}
                         keyboardType={'email-address'}
-                        // style={styles.textInput} 
                         style={[styles.textInput, emailError ? {borderColor: 'red', borderWidth: 1} : {borderColor: '#D3D3D3', borderWidth: 0.5}]} 
-                        // defaultValue={email}
                         autoCorrect={false}
                         placeholder="Email" 
                         multiline={false}
@@ -219,9 +198,7 @@ export default function SignInScreen({navigation, route}){
                         ref={pwordTextInputRef}
                         clearButtonMode={'while-editing'}
                         keyboardType={keyboardType}
-                        // style={styles.textInput} 
                         style={[styles.textInput, pwordError ? {borderColor: 'red', borderWidth: 1} : {borderColor: '#C3C3C3', borderWidth: 0.5}]} 
-                        // defaultValue={email}
                         autoCorrect={false}
                         placeholder="Password" 
                         multiline={false}
@@ -241,7 +218,7 @@ export default function SignInScreen({navigation, route}){
                     <Pressable 
                         style={({pressed}) => [styles.button, {backgroundColor: pressed ? 'gold' : 'gold', borderColor: 'gold', opacity: pressed ? 0.5 : 1}]}
                         onPress={() => {
-                            console.log("sign in button pressed");
+                            // console.log("sign in button pressed");
                             handleSignIn();
                         }}
                     >
@@ -260,10 +237,8 @@ export default function SignInScreen({navigation, route}){
                     
                     <Text style={styles.switchToSignUpQuestionText}>Don't have an account yet?</Text>
                     <Pressable 
-                            // style={({pressed}) => [styles.button, {opacity: pressed ? 0.5 : 1}]}
                             onPress={() => {
-                                console.log("switch to create account screen button pressed");
-                                // navigation.setOptions(flipOptions);
+                                // console.log("switch to create account screen button pressed");
                                 navigation.replace("Create Account Screen", {prevScreen: 'SignIn'});
                             }}
                         >
@@ -280,7 +255,6 @@ export default function SignInScreen({navigation, route}){
 
 
 
-
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
@@ -288,9 +262,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     signInFormContainer: {
-        // borderWidth: 1,
         marginHorizontal: 30,
-        // alignItems: 'center',
     },
     signInMessageContainer: {
         alignItems: 'center',
@@ -301,7 +273,6 @@ const styles = StyleSheet.create({
         fontWeight: '500'
     },
     signInButtonContainer: {
-        // paddingHorizontal: 30,
         alignItems: 'center',
         width: '100%',
         marginTop: 15
@@ -326,21 +297,6 @@ const styles = StyleSheet.create({
     },
     textInput: {
         fontSize: 17,
-    
-        // borderBottomColor: '#D3D3D3',
-        // borderBottomWidth: 1,
-        // borderColor: '#D3D3D3',
-        // // borderTopWidth: 1,
-        // paddingLeft: 10,
-        // paddingVertical: 14, // 18
-        // borderWidth: 0.5,
-        // borderRadius: 5,
-        // paddingRight: 200
-        // paddingHorizontal: 15,
-        // marginVertical: 10,
-        // marginRight: 10
-        // paddingRight: 50
-
         fontSize: 17,
         paddingLeft: 10,
         paddingVertical: 14, // 18
@@ -349,7 +305,6 @@ const styles = StyleSheet.create({
     },
     switchToSignUpContainer: {
         width: '100%',
-        // flex: 1,
         flexDirection: 'row',
         justifyContent: 'center',
         marginTop: 15

@@ -1,13 +1,11 @@
-import React, {useEffect, useState, useRef, useContext, forwardRef, useImperativeHandle} from 'react';
-import { StyleSheet, Button, Text, TextInput, View, Dimensions, Pressable, Platform, ScrollView, SafeAreaView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, LayoutAnimation} from 'react-native';
+import React, { useEffect, useState, useRef, useContext, forwardRef, useImperativeHandle } from 'react';
+import { StyleSheet, Text, TextInput, View, Dimensions, Pressable, Platform, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, LayoutAnimation } from 'react-native';
 import AppContext from '../contexts/AppContext';
 import ReportIssueStackContext from '../contexts/ReportIssueStackContext';
 import * as Haptics from 'expo-haptics';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import MapView from 'react-native-maps';
-// import { SafeAreaView } from 'react-native-safe-area-context';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useHeaderHeight } from '@react-navigation/elements';
 
 import firebase from 'firebase/app';
@@ -18,31 +16,8 @@ const db = Firebase.firestore();
 
 const keyboardType = Platform.OS === "ios" ? "ascii-capable": "default";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { cloneDeep, set } from 'lodash';
+import { cloneDeep } from 'lodash';
 
-
-const updatedTimeslotDataTest = {startUtcInMilli: 0, endUtcInMilli: 0, etRangeStr: "", isAllDay: false, days: [0, 1, 5]};
-
-const dummyTimeslots = [
-    {
-        days: ["Mon-Tue", "Fri"],
-        daysInNum: [0, 1, 4],
-        isAllDay: false,
-        startEtHour: 12,
-        startEtMin: 0,
-        startEtDayTime: 'PM',
-        endEtHour: 4,
-        endEtMin: 34,
-        endEtDayTime: 'PM',
-        // rangeEtStr: "12:00PM-4:34PM",
-        // startUtcMilli: getUTCDateFromHoursAndMins(12, 0, "PM"),
-        // endUtcMilli: getUTCDateFromHoursAndMins(4, 34, "PM"),
-    },
-    {
-        days: ["Sun"],
-        isAllDay: true,
-    }
-];
 
 export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
 
@@ -62,12 +37,10 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
 
         async submitLandmarkIssue(){
 
-            console.log("in submit landmark issue");
+            // console.log("in submit landmark issue");
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
             let edits = {};
-
-            console.log("djksjkdjkdjkjdkjdkjdkjdkjfkdjkfdjdkjdkjdkdjkd");
 
             if(editedBathroomName != null && editedBathroomName != "" && editedBathroomName != landmarkUnderEdit.building){
                 edits["edited_bathroom_name"] = editedBathroomName;
@@ -84,10 +57,7 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
                 };
             }
 
-            console.log("before hereerrerrrrrr");
-
             if(Object.keys(edits).length > 0){
-                console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
                 edits["landmark_id"] = landmarkUnderEdit.id;
                 edits["gender"] = landmarkUnderEdit.gender;
                 edits["building"] = landmarkUnderEdit.building;
@@ -153,9 +123,6 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
         } else {
             timeslotsAfterDeletion = curHopData.displayableHopData.slice(0, i).concat(curHopData.displayableHopData.slice(i+1));    
         }
-
-        // console.log(timeslotsAfterDeletion);
-        // console.log(newFlattenedHopDataForFilteringAndMutating);
 
         if(timeslotsAfterDeletion && timeslotsAfterDeletion.length > 0){
             setCurLandmarkHopData({displayableHopData: timeslotsAfterDeletion, flattenedHopDataForFilteringAndMutating: newFlattenedHopDataForFilteringAndMutating});
@@ -278,7 +245,6 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
                                 <View style={styles.hoursContainer}>
                                     {timeslot.isAllDay ?
                                         <Text style={styles.hourItem}>Open 24 Hours</Text> :
-                                        // <Text style={styles.hourItem}>{timeslot.startEtHour}:{String(timeslot.startEtMin).padStart(2, '0')} {timeslot.startEtDayTime} - {timeslot.endEtHour}:{String(timeslot.endEtMin).padStart(2, '0')} {timeslot.endEtDayTime}</Text>
                                         <Text style={styles.hourItem}>{timeslot.etRangeStr}</Text>
                                     }
                                 </View>
@@ -328,24 +294,12 @@ const styles = StyleSheet.create({
     },
     screen: {
         flex: 1,
-        // flexGrow: 1, 
         justifyContent: 'flex-start',
         backgroundColor: '#fff',
-        // alignItems: 'flex-start',
-        // justifyContent: 'flex-start',
-        // marginTop: StatusBar.currentHeight || 0,
         width: '100%',
         paddingBottom: 10
-        // height: '100%'
-        // height: 300,
-        // borderWidth: 1, 
-        // borderColor: 'red'
-
     },
     mapContainer: {
-        // flexGrow: 1, 
-        // flex: 1,
-        // width: '100%',
         height: '100%',
         borderTopWidth: 1,
         borderTopColor: '#D3D3D3',
@@ -354,9 +308,6 @@ const styles = StyleSheet.create({
         marginVertical: 0,
     },
     map: {
-        // flexGrow: 1
-        // flex: 1,
-        // width: '100%',
         height: '100%'
     },
     markerFixed: {
@@ -371,7 +322,6 @@ const styles = StyleSheet.create({
         width: 48
     },
     nameFieldContainer: {
-        // flex: 1,
         width: '100%',
         marginTop: 20,
     },
@@ -390,16 +340,7 @@ const styles = StyleSheet.create({
     },
     textInput: {
         fontSize: 17,
-    
-        // borderBottomColor: '#D3D3D3',
-        // borderBottomWidth: 1,
-        // borderTopColor: '#D3D3D3',
-        // borderTopWidth: 1,
         paddingVertical: 18,
-        // paddingHorizontal: 15,
-        // marginVertical: 10,
-        // marginRight: 10
-        // paddingRight: 50
     },
     hoursOfOpertionListContainer: {
         borderBottomColor: '#D3D3D3',
@@ -434,15 +375,11 @@ const styles = StyleSheet.create({
         fontWeight: '600'
     },
     deleteTimeslotIconContainer: {
-        // paddingRight: 15,
         marginRight: 15,
-        // borderWidth: 1
     },
     addHoursButtonContainer: {
-        // width: '100%',
         paddingVertical: 14,
         borderTopColor: '#D3D3D3',
-        // borderTopWidth: 1,
         marginLeft: 18
     },
     addHoursButtonText: {

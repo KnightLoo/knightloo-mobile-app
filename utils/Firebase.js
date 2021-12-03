@@ -1,4 +1,3 @@
-// import * as firebase from 'firebase';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
@@ -12,11 +11,4 @@ if(firebase.apps.length === 0){
     console.log("heree");
 }
 
-
-// export const db = firebase.firestore();
-
 export default Firebase;
-
-// export const auth = Firebase.auth();
-
-// export const db = Firebase.firestore();

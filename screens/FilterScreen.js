@@ -1,19 +1,11 @@
 import React, { useState, useEffect, useRef, useContext, forwardRef, useImperativeHandle } from 'react';
 import { StyleSheet, Text, View, Button, TouchableHighlight, Switch, SafeAreaView, Pressable, ScrollView, Platform } from 'react-native';
-import { LandmarkMapProvider } from '../contexts/LandmarkMapContext';
 import {ButtonGroup, CheckBox} from 'react-native-elements';
-import {Picker} from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
-
 import { Ionicons } from '@expo/vector-icons';
-// import { MaterialCommunityIcons } from '@expo/vector-icons';
-// import { AntDesign } from '@expo/vector-icons';
+
 import AppContext from '../contexts/AppContext';
 
-function useForceUpdate(){
-    const [value, setValue] = useState(0); 
-    return () => setValue(value => value + 1);
-}
 
 export default FilterScreen = forwardRef( ({navigation}, ref) => {
 
@@ -64,8 +56,6 @@ export default FilterScreen = forwardRef( ({navigation}, ref) => {
             flex: 1, 
             width: '100%', 
             backgroundColor: 'white'
-            // backgroundColor: '#FAF9F6', 
-            // backgroundColor: '#202020'
         }}>
         <SafeAreaView style={{flex: 1, width: '100%'}}>
             <View style={styles.screen}>
@@ -118,8 +108,6 @@ export default FilterScreen = forwardRef( ({navigation}, ref) => {
                             </Text>
                         </View>
                         
-                        
-                        
                         <Slider
                             ref={sliderRef}
                             value={initialMaxRadius}
@@ -133,10 +121,7 @@ export default FilterScreen = forwardRef( ({navigation}, ref) => {
                             thumbTintColor={sliderThumbTintColor}
                         />
                         
-                        
                     </View>
-
-
 
                     <View style={styles.stallsFilterSection}>
                         <Text style={styles.filterSectionTitle}>Bathroom Stalls</Text>
@@ -208,7 +193,6 @@ export default FilterScreen = forwardRef( ({navigation}, ref) => {
 
                 <View style={styles.filterApplyButtonContainer}> 
                     <Pressable 
-                        // style={styles.applyFilterButton} 
                         style={({ pressed }) => [
                             pressed ? styles.applyFilterButtonPressed : styles.applyFilterButtonNotPressed,
                             styles.applyFilterButton
@@ -231,8 +215,6 @@ export default FilterScreen = forwardRef( ({navigation}, ref) => {
                                 showUnisexBathrooms: unisexChecked
                             });
 
-                            // setFilterQuery({"hello": "world"});
-                            // setTimeout(() => navigation.goBack(), 200);
                             navigation.goBack();
                         }}
 
@@ -242,7 +224,6 @@ export default FilterScreen = forwardRef( ({navigation}, ref) => {
                                 Apply
                             </Text>
                         )}
-                        {/* <Text style={styles.applyFilterText}>Apply</Text> */}
                     </Pressable>
                 </View>
             </View>
@@ -259,18 +240,12 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         backgroundColor: 'white',
-        // backgroundColor: '#FAF9F6',
-        // backgroundColor: '#202020',
         alignItems: 'center',
         justifyContent: 'space-between',
-        // height: '100%',
-        // borderWidth: 1,
-        // borderColor: 'red'
     },
     filterSectionsContainer: {
         flex: 1,
         width: '100%',
-        // alignItems: 'center',
     },
     filterApplyButtonContainer: {
         width: '100%',
@@ -279,8 +254,6 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: '#D3D3D3',
         marginTop: 5
-        // flex: 1
-        // justifyContent: 'flex-end'
     },
     checkBoxTitle: {
         fontWeight: 'normal'
@@ -291,7 +264,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 0,
-        // borderWidth: 1,
         marginLeft: 0
     },
     genderFilterSection: {
@@ -312,9 +284,6 @@ const styles = StyleSheet.create({
         marginTop: 15,
         borderBottomColor: "#D3D3D3",
         borderBottomWidth: 1,
-        // flex: 1,
-        // alignItems: 'center',
-        // justifyContent: 'center',
     },
     stallsFilterButtonGroupContainer: {
         width: '100%',
@@ -383,20 +352,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 12,
-        // paddingHorizontal: 32,
         borderRadius: 4,
         elevation: 3,
         borderWidth: 1,
-        // backgroundColor: 'gold',
-        // width: '100%'
     },
     applyFilterButtonPressed: {
         backgroundColor: 'white',
-        // borderWidth: 1,
         borderColor: 'gold'
     },
     applyFilterButtonNotPressed: {
-        // borderWidth: 0,
         backgroundColor: 'gold',
         borderColor: 'gold'
     },
@@ -405,6 +369,5 @@ const styles = StyleSheet.create({
         lineHeight: 21,
         fontWeight: 'bold',
         letterSpacing: 0.25,
-        // color: 'black',
     },
 });

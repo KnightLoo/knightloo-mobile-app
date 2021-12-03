@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, useContext, useMemo, useLayoutEffect } from 'react';
+import React, { useContext } from 'react';
 import AppContext from '../contexts/AppContext';
 import DetailScreen from './DetailScreen';
 

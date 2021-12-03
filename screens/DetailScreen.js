@@ -9,95 +9,24 @@ import cloneDeep from 'lodash/cloneDeep';
 import CustomFastImage from '../components/CustomFastImage';
 import {DateTime} from 'luxon';
 
-// import BottomSheet, {BottomSheetBackdrop} from '@gorhom/bottom-sheet';
-// import SignInToContinueSheetBackdrop from '../components/SignInToContinueSheetBackdrop';
-
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import Firebase from '../utils/Firebase';
 const db = Firebase.firestore();
 
-const reviews = [
-    {
-        id: "1",
-        review_author: "Max Smith",
-        review_text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, a reiciendis? Quisquam aspernatur animi inventore quos autem eius debitis deserunt! Corporis hic illum voluptate minima nemo eaque, vitae sapiente alias.",
-        num_stars: 5,
-        time_since_reviewed_text: "11 months ago"
-    },
-    {
-        id: "2",
-        review_author: "Max Smith",
-        review_text: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Illum expedita eligendi esse eum, possimus perferendis quas dolor ullam vero minima! Quasi quaerat exercitationem, esse fugiat facere qui quibusdam nulla, placeat, quisquam laborum ut molestiae eaque.",
-        num_stars: 1,
-        time_since_reviewed_text: "2 months ago"
-    },
-    {
-        id: "3",
-        review_author: "Max Smith",
-        review_text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, a reiciendis? Quisquam aspernatur animi inventore quos autem eius debitis deserunt! Corporis hic illum voluptate minima nemo eaque, vitae sapiente alias.",
-        num_stars: 0,
-        time_since_reviewed_text: "3 weeks ago"
-    },
-    {
-        id: "4",
-        review_author: "Max Smith",
-        review_text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, a reiciendis? Quisquam aspernatur animi inventore quos autem eius debitis deserunt! Corporis hic illum voluptate minima nemo eaque, vitae sapiente alias.",
-        num_stars: 3,
-        time_since_reviewed_text: "a year ago"
-    },
-    {
-        id: "5",
-        review_author: "Max Smith",
-        review_text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, a reiciendis? Quisquam aspernatur animi inventore quos autem eius debitis deserunt! Corporis hic illum voluptate minima nemo eaque, vitae sapiente alias.",
-        num_stars: 2,
-        time_since_reviewed_text: "4 months ago"
-    },
-    {
-        id: "6",
-        review_author: "Max Smith",
-        review_text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, a reiciendis? Quisquam aspernatur animi inventore quos autem eius debitis deserunt! Corporis hic illum voluptate minima nemo eaque, vitae sapiente alias.",
-        num_stars: 4,
-        time_since_reviewed_text: "a day ago"
-    }
-];
-
-
-
-
 
 export default function DetailScreen({navigation, route, selectedLandmark}) {
 
-    // selectedLandmark, selectedBookmarkedLandmark,
     const { user, needsToShowReviewScreen, setNeedsToShowReviewScreen, setDidComeFromReviewButtonPress } = useContext(AppContext);
 
     const [reviewsData, setReviewsData] = useState(null);
-
-    // const [reviewTimeSinceData, setReviewTimeSinceData] = useState([]);
-
-    // const [isRefreshingReviews, setIsRefreshingReviews] = useState(false);
-
-    const [modalVisible, setModalVisible] = useState(false);
-
-
-    // useLayoutEffect(() => {
-    //     // console.log("Detail screen:::prev screen: ", route.params.prevScreen);
-
-    //     if(route.params.prevScreen == "BookmarkScreen"){
-            
-    //     } else {
-            
-    //     }
-
-    // }, []);
-
 
     useEffect(() => {
 
         if(needsToShowReviewScreen){
             setNeedsToShowReviewScreen(false);
             setDidComeFromReviewButtonPress(false);
-            console.log("opening review screen");
+            // console.log("opening review screen");
             navigation.navigate("Leave Review");
         }
 
@@ -123,45 +52,8 @@ export default function DetailScreen({navigation, route, selectedLandmark}) {
     }
 
     
-    async function getReviewsData() {
-
-        try {
-            const reviewsRef = db.collection("bathroom_reviews");
-            const querySnapshot = await reviewsRef.where("landmark_id", "==", selectedLandmark.id).get();
-
-            if(querySnapshot.empty){
-                console.log("no reviews found");
-                setReviewsData([]);
-            } else {
-                const reviews = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
-
-                if(reviews && reviews.length > 0){
-
-
-                    setReviewsData(reviews);
-                    // const reviewsProccessed = reviews.map(rev => {
-                        
-                    //     return {
-                    //         ...rev,
-                            
-                    //     }
-
-                    // });
-
-                } else {
-                    setReviewsData([]);
-                }
-                 
-            }
-
-        } catch(error) {
-            console.log("error getting reviews");
-        }
-    }
-
     useEffect(() => {
 
-        // getReviewsData();
         if(!selectedLandmark || !selectedLandmark.id){
             return;
         }
@@ -177,7 +69,6 @@ export default function DetailScreen({navigation, route, selectedLandmark}) {
                 const reviews = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
             
                 if(reviews && reviews.length > 0){
-                    // const reviewsProcessed = reviews.map(rev => ({...rev, time_since_reviewed_text: getRelativeDateTime(rev.review_date)}));
                     setReviewsData(reviews);
                 } else {
                     setReviewsData([]);
@@ -197,10 +88,7 @@ export default function DetailScreen({navigation, route, selectedLandmark}) {
             {selectedLandmark &&
                     <FlatList
                         style={{width: '100%', flex: 1}}
-                        // contentContainerStyle={{width: '100%', flex:1}}
-                        // onRefresh={handleRefresh}
-                        // refreshing={isRefreshingReviews}
-                        ListHeaderComponent={<LandmarkDetailScreenHeader selectedLandmark={selectedLandmark} setModalVisible={setModalVisible} navigation={navigation} />}
+                        ListHeaderComponent={<LandmarkDetailScreenHeader selectedLandmark={selectedLandmark} navigation={navigation} />}
                         ListHeaderComponentStyle={styles.headerComponentStyle}
                         ListEmptyComponent={reviewsData != null ? <NoReviewsView /> : <LoadingReviewsView reviewsData={reviewsData}/> }
                         data={reviewsData}
@@ -214,16 +102,13 @@ export default function DetailScreen({navigation, route, selectedLandmark}) {
                                     <MaterialIcons name="star-rate" size={18} color={item.num_stars >= 4 ? "gold" : "#D3D3D3"} />
                                     <MaterialIcons name="star-rate" size={18} color={item.num_stars >= 5 ? "gold" : "#D3D3D3"} />
                                     
-                                    {/* <Text style={styles.reviewLapsedTimeText}>{item.time_since_reviewed_text}</Text> */}
                                     <Text style={styles.reviewLapsedTimeText}>{getRelativeDateTime(item.review_date)}</Text>
-                                    {/* <Text style={styles.reviewLapsedTimeText}>{reviewTimeSinceData[index]}</Text> */}
 
                                 </View>
                                 <ReadMore
                                     numberOfLines={4}
                                     renderTruncatedFooter={(handlePress) => (<Text style={styles.seeMoreTextStyle} onPress={handlePress}>Show More</Text>)}
                                     renderRevealedFooter={(handlePress) => (<Text style={styles.seeMoreTextStyle} onPress={handlePress}>Show Less</Text>)}
-                                    // onReady={() => console.log("ready")}
                                     >
                                     <Text style={styles.reviewText}>
                                         {item.review_text}
@@ -241,7 +126,7 @@ export default function DetailScreen({navigation, route, selectedLandmark}) {
 
 
 
-function LandmarkDetailScreenHeader({selectedLandmark, setModalVisible, navigation}){
+function LandmarkDetailScreenHeader({selectedLandmark, navigation}){
 
     const {setLandmarkUnderEdit, setCurLandmarkHopData, setEditedMapLocation, signInToContinueSheetRef, user, bookmarkedLandmarkIds, setLandmarkUnderReview} = useContext(AppContext);
     
@@ -280,28 +165,21 @@ function LandmarkDetailScreenHeader({selectedLandmark, setModalVisible, navigati
             bookmarkedLandmarkIds: newIsBookmarked ? firebase.firestore.FieldValue.arrayUnion(selectedLandmark.id) : firebase.firestore.FieldValue.arrayRemove(selectedLandmark.id)
           }, { merge: true })
           .then(() => {
-            console.log("Bookmarks updated successfully");
+            // console.log("Bookmarks updated successfully");
           })
           .catch((error) => {
               console.error("Error updating bookmark ", error);
           });
         }
-        else {
-          console.log("nothing happening");
-        }
-        
-  
+    
     };
 
-// position: 'relative', top: 0, bottom: 0, right: 0, left: 0, height: '100%', marginRight: 0, marginTop: 35,
+
     return (
         <View style={{flex: 1}}>
             <View style={styles.landmarkInfoContainer}>
                 <View style={styles.textContainer}>
                     <Text style={styles.landmarkTitle}>{selectedLandmark.building || "placeholder"}</Text>
-                    {/* <Text style={styles.landmarkDesc}>Knights Plaza</Text> */}
-                    {/* <Text style={styles.landmarkDesc}>{selectedLandmark.gender ? selectedLandmark.gender.charAt(0).toUpperCase() + selectedLandmark.gender.slice(1) : ""}</Text> */}
-                    {/* <Text style={styles.landmarkDesc}>Hours: 9:00 am - 5:00 pm</Text> */}
                     <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingVertical: 4}}>
                         <Text style={styles.landmarkDesc}>{selectedLandmark.gender ? selectedLandmark.gender.charAt(0).toUpperCase() + selectedLandmark.gender.slice(1) : ""} </Text>
                         <Text style={styles.middleDot}>{'\u2B24'}</Text>
@@ -343,12 +221,9 @@ function LandmarkDetailScreenHeader({selectedLandmark, setModalVisible, navigati
             <Pressable 
                 style={styles.reportIssueButtonContainer}
                 onPress={() => {
-                    // console.log("Report issue button pressed");
-                    // setModalVisible(true);
                     setLandmarkUnderEdit(selectedLandmark);
                     setEditedMapLocation({longitude: selectedLandmark.longitude, latitude: selectedLandmark.latitude});
                     setCurLandmarkHopData(cloneDeep(selectedLandmark.hopData));
-                    // console.log(selectedLandmark);
                     navigation.navigate("Report Issue");
                 }}
             >
@@ -372,8 +247,7 @@ function LandmarkDetailScreenHeader({selectedLandmark, setModalVisible, navigati
                         styles.leaveReviewButton
                         ]}
                     onPress={() => {
-                        console.log("leave review button pressed");
-                        // navigation.navigate("Login modal");
+                        // console.log("leave review button pressed");
                         setLandmarkUnderReview(selectedLandmark);
                         
                         if(user){
@@ -439,28 +313,14 @@ function NoReviewsView(){
 
 
 
-
-
-
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
-        // marginTop: StatusBar.currentHeight || 0,
         width: '100%',
-        // height: '100%',
-        
     },
-    // container: {
-    //     flex: 1,
-    //     // flexDirection: 'row',
-    //     // backgroundColor: 'red',
-    //     alignItems: 'flex-start',
-    //     justifyContent: 'center',
-    //     width: '100%'
-    // },
     headerComponentStyle: {
         width: '100%',
         flex: 1
@@ -468,20 +328,14 @@ const styles = StyleSheet.create({
     landmarkInfoContainer: {
         width: '100%',
         flex: 1,
-        // borderWidth: 1,
-        // borderColor: 'red',
         flexDirection: 'row',
         minHeight: Dimensions.get('window').height * 0.16,
         borderBottomWidth: 1,
         borderBottomColor: '#D3D3D3',
-        // backgroundColor: 'red',
-        // paddingBottom: 10,
-        // alignItems: 'center',
         justifyContent: 'space-between',
     },
     reportIssueButtonContainer: {
         width: '100%',
-        // marginTop: 10
         marginTop: 12,
         marginBottom: 4
     },
@@ -491,100 +345,50 @@ const styles = StyleSheet.create({
         
     },
     imageContainer: {
-        // flex: 1,
-        // borderWidth: 2,
-        // borderColor: 'blue',
         flex:1,
         borderWidth: 0, 
-        // borderColor: 'blue', 
         width: Dimensions.get('window').width / 3,
-        // backgroundColor: 'red',
-        // justifyContent: 'center',
-        // alignSelf: 'center',
-        // maxHeight: Dimensions.get('window').width / 4,
-        // width: 10
-
-        // maxWidth: Dimensions.get('window').width / 3,
-        // minWidth: '70%'
     },
     textContainer: {
-    //   flex: 1,
-    //   alignSelf: 'flex-start',
-    //   justifyContent: 'flex-start',
       height: '100%',
-    //   borderWidth: 1,
       justifyContent: 'center',
       paddingTop: 8,
       paddingBottom: 4,
       paddingLeft: 12,
-    //   borderBottomWidth: 1,
-    //   width: '100%',
-    //   alignSelf: 'center'
-    //   height: 10
     },
     landmarkTitle:{
-    //   paddingLeft: 12,
-      // paddingTop: 10,
       paddingBottom: 4,
       fontWeight: 'bold',
-    //   fontSize: 18
     },
     landmarkDesc: {
-    //   paddingLeft: 12,
       paddingVertical: 4
     },
-    // imageContainer: {
-    //   flex: 1,
-    //   backgroundColor: 'black',  
-    //   minWidth: Dimensions.get('window').width / 3,
-    // },
     bgContainer: {
       borderRadius: 0
     },
     reviewHeaderContainer: {
-        // justifyContent: 'flex-start',
-        // alignItems: 'flex-start',
-        // flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        // width: '100%',
         marginHorizontal: 15,
         paddingVertical: 10,
-
         borderBottomWidth: 1,
         borderBottomColor: '#D3D3D3',
-
-        // borderColor: 'blue',
-        // borderWidth: 1,
-        // before
-        // marginTop: 8,
-        // paddingHorizontal:15,
-        // paddingVertical: 10,
-        // width: '100%',
     },
     reviewHeaderTextContainer: {
         alignItems: 'center',
         textAlign: 'center',
-        // flex: 1
-        // width: '100%',
-        // borderBottomWidth: 1,
-        // borderBottomColor: '#D3D3D3',
     },
     reviewHeaderText: {
         textAlignVertical: 'center',
-        // borderColor: 'blue',
-        // borderWidth: 1,
         fontWeight: 'bold',
         fontSize: 22,
-        // paddingBottom: 10,
     },
     leaveReviewTextContainer:{
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 10,
         paddingHorizontal: 15,
-        // paddingHorizontal: 32,
         borderRadius: 4,
         elevation: 3,
         borderWidth: 1,
@@ -592,13 +396,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'gold',
     },
     leaveReviewText: {
-        // color: '#007bff',
         color: 'black',
         fontWeight: 'bold',
-        
-        
-        
-        // fontWeight: '700'
     },
     reviewsContainer: {
         flex: 1,
@@ -644,44 +443,30 @@ const styles = StyleSheet.create({
         paddingLeft: 8
     },
     spinnerContainer: {
-        // flex: 1,
-        // width: '100%',
-        // height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-        // borderColor: 'red',
-        // borderWidth: 1,
         paddingTop: 25
-        // justifyContent: 'space-between'
     },
     leaveReviewButton: {
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 10,
         paddingHorizontal: 15,
-        // paddingHorizontal: 32,
         borderRadius: 4,
         elevation: 3,
         borderWidth: 1,
-        // backgroundColor: 'gold',
-        // width: '100%'
     },
     leaveReviewButtonPressed: {
         backgroundColor: 'white',
-        // borderWidth: 1,
         borderColor: 'gold'
     },
     leaveReviewButtonNotPressed: {
-        // borderWidth: 0,
         backgroundColor: 'gold',
         borderColor: 'gold'
     },
     leaveReviewText: {
-        // fontSize: 16,
-        // lineHeight: 21,
         fontWeight: 'bold',
         letterSpacing: 0.25,
-        // color: 'black',
     },
     centeredView: {
         flex: 1,
@@ -728,38 +513,3 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
       }
 });
-
-
-// function ExpandableText({text}){
-
-//     //
-//     const [textShown, setTextShown] = useState(false); //To show ur remaining Text
-//     const [lengthMore, setLengthMore] = useState(false); //to show the "Read more & Less Line"
-//     const toggleNumberOfLines = () => { //To toggle the show text or hide it
-//         setTextShown(!textShown);
-//     }
-
-//     const onTextLayout = useCallback(e =>{
-//         console.log(e.nativeEvent.lines.length);
-//         setLengthMore(e.nativeEvent.lines.length > 4); //to check the text is more than 4 lines or not
-//         // console.log(e.nativeEvent);
-//     },[]);
-
-//     //
-
-//     return (
-//         <View>
-//             <Text onTextLayout={onTextLayout} numberOfLines={textShown ? undefined : 4} style={{ lineHeight: 21 }}>
-//                 {text}
-//             </Text>
-//             {
-//                 lengthMore ? <Text
-//                 onPress={toggleNumberOfLines}
-//                 style={{ lineHeight: 21, marginTop: 10 }}>{textShown ? 'Read less...' : 'Read more...'}</Text> : null
-//             }
-//         </View>
-
-//     );
-
-
-// }

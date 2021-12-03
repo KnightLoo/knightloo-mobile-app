@@ -1,8 +1,6 @@
-import React, {useEffect, useState, useRef, useContext, forwardRef, useImperativeHandle, useLayoutEffect} from 'react';
-import { StyleSheet, Button, Text, View, Dimensions, Pressable, TextInput, Platform, Image, Easing, Alert } from 'react-native';
+import React, {useEffect, useState, useRef, useContext, useLayoutEffect} from 'react';
+import { StyleSheet, Text, View, Pressable, TextInput, Platform, Image, Easing, Alert } from 'react-native';
 import AppContext from '../contexts/AppContext';
-// import knightloo_logo from '../assets/knightloo_logo.jpg';
-// import auth from '../utils/auth';
 import {CardStyleInterpolators, TransitionSpecs} from '@react-navigation/stack';
 import Firebase from '../utils/Firebase';
 
@@ -91,12 +89,7 @@ export default function SignUpScreen({navigation, route}){
     const [email, setEmail] = useState(null);
     const [password, setPassword] = useState(null);
     const [confirmPassword, setConfirmPassword] = useState(null);
-
-    // const [nameError, setNameError] = useState("Required");
-    // const [emailError, setEmailError] = useState("Required"); 
-    // const [pwordError, setPwordError] = useState("Required"); 
-    // const [confirmPwordError, setConfirmPwordError] = useState("Required");      
-
+ 
     const [nameError, setNameError] = useState(null);
     const [emailError, setEmailError] = useState(null); 
     const [pwordError, setPwordError] = useState(null); 
@@ -137,7 +130,6 @@ export default function SignUpScreen({navigation, route}){
         const newEmailError = email == null || email == "" ? "Required" : null;
         const newPwordError = password == null || password == "" ? "Required" : null;
         const newConfirmPwordError = getConfirmPasswordError();
-        // const newConfirmPwordError = confirmPassword == null || confirmPassword == "" ? "Required" : null 
 
         setNameError(newNameError);
         setEmailError(newEmailError);
@@ -148,9 +140,7 @@ export default function SignUpScreen({navigation, route}){
             
             try{
                 setIsAppWideLoading(true);
-                // setTimeout(() => {
-                //     setIsAppWideLoading(false);
-                // }, 5000);
+               
                 await auth.createUserWithEmailAndPassword(email, password);
 
                 auth.currentUser.updateProfile({
@@ -173,11 +163,8 @@ export default function SignUpScreen({navigation, route}){
 
                         if(didComeFromReviewButtonPress){
                             setNeedsToShowReviewScreen(true);
-                            // setDidComeFromReviewButtonPress(false);
                         }
 
-                        // setNeedsToShowReviewScreen(true);
-                        // console.log("here");
                         navigation.goBack();
                       }, 10);
 
@@ -201,8 +188,7 @@ export default function SignUpScreen({navigation, route}){
                     default: 
                         console.log(error.code);
                 }
-                // console.log(error.message);
-                // console.log(error.code);
+            
                 setPassword(null);
                 setConfirmPassword(null);
                 pwordTextInputRef.current.clear();
@@ -224,10 +210,6 @@ export default function SignUpScreen({navigation, route}){
     return (
         <Pressable onPress={blurAllInputs} style={styles.screen}>
 
-            {/* <View style={styles.signInMessageContainer}>
-                <Text style={styles.signInMessageText}>Sign In</Text>
-            </View> */}
-
             <View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 20}}>
                 <Image source={require('../assets/knightloo_logo.jpg')} style={{ width: 324 / 4, height: 362 / 4, borderWidth: 0}} /> 
             </View>
@@ -241,7 +223,6 @@ export default function SignUpScreen({navigation, route}){
                         clearButtonMode={'while-editing'}
                         keyboardType={keyboardType} //'#D3D3D3'
                         style={[styles.textInput, nameError ? {borderColor: 'red', borderWidth: 1} : {borderColor: '#D3D3D3', borderWidth: 0.5}]} 
-                        // defaultValue={name}
                         autoCorrect={false}
                         onChangeText={(newName) => {
 
@@ -265,7 +246,6 @@ export default function SignUpScreen({navigation, route}){
                         clearButtonMode={'while-editing'}
                         keyboardType={'email-address'} //'#D3D3D3'
                         style={[styles.textInput, emailError ? {borderColor: 'red', borderWidth: 1} : {borderColor: '#D3D3D3', borderWidth: 0.5}]} 
-                        // defaultValue={email}
                         autoCorrect={false}
                         onChangeText={(newEmail) => {
 
@@ -291,8 +271,6 @@ export default function SignUpScreen({navigation, route}){
                         clearButtonMode={'while-editing'}
                         keyboardType={keyboardType}
                         style={[styles.textInput, pwordError ? {borderColor: 'red', borderWidth: 1} : {borderColor: '#C3C3C3', borderWidth: 0.5}]} 
-                        // style={styles.textInput} 
-                        // defaultValue={email}
                         autoCorrect={false}
                         onChangeText={(newPassword) => {
 
@@ -317,8 +295,6 @@ export default function SignUpScreen({navigation, route}){
                         clearButtonMode={'while-editing'}
                         keyboardType={keyboardType}
                         style={[styles.textInput, confirmPwordError ? {borderColor: 'red', borderWidth: 1} : {borderColor: '#C3C3C3', borderWidth: 0.5}]} 
-                        // style={styles.textInput} 
-                        // defaultValue={email}
                         autoCorrect={false}
                         onChangeText={(newConfirmPword) => {
 
@@ -338,7 +314,7 @@ export default function SignUpScreen({navigation, route}){
                     <Pressable 
                         style={({pressed}) => [styles.button, {backgroundColor: pressed ? 'gold' : 'gold', borderColor: 'gold', opacity: pressed ? 0.5 : 1}]}
                         onPress={() => {
-                            console.log("create account button pressed");
+                            // console.log("create account button pressed");
                             handleSubmit();
                         }}
                     >
@@ -359,7 +335,7 @@ export default function SignUpScreen({navigation, route}){
                     <Pressable 
                             // style={({pressed}) => [styles.button, {opacity: pressed ? 0.5 : 1}]}
                             onPress={() => {
-                                console.log("switch to sign in screen button pressed");
+                                // console.log("switch to sign in screen button pressed");
                                 navigation.replace("Sign in Screen", {prevScreen: 'CreateAccount'});
                             }}
                         >
@@ -384,9 +360,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     signInFormContainer: {
-        // borderWidth: 1,
         marginHorizontal: 30,
-        // alignItems: 'center',
     },
     signInMessageContainer: {
         alignItems: 'center',
@@ -397,7 +371,6 @@ const styles = StyleSheet.create({
         fontWeight: '500'
     },
     signInButtonContainer: {
-        // paddingHorizontal: 30,
         alignItems: 'center',
         width: '100%',
         marginTop: 2
@@ -422,15 +395,13 @@ const styles = StyleSheet.create({
     },
     textInput: {
         fontSize: 17,
-        // borderColor: '#D3D3D3',
         paddingLeft: 10,
-        paddingVertical: 14, // 18
+        paddingVertical: 14,
         borderWidth: 0.5,
         borderRadius: 5,
     },
     switchToSignInContainer: {
         width: '100%',
-        // flex: 1,
         flexDirection: 'row',
         justifyContent: 'center',
         marginTop: 15

@@ -1,6 +1,5 @@
-import React, {useEffect, useState, useRef, useContext, forwardRef, useImperativeHandle} from 'react';
-import { StyleSheet, Button, Text, View, Dimensions, Pressable } from 'react-native';
-import AppContext from '../contexts/AppContext';
+import React from 'react';
+import { StyleSheet, Text, View, Dimensions, Pressable } from 'react-native';
 
 
 export default function LoginToContinuePopup({navigation}){
@@ -18,36 +17,27 @@ export default function LoginToContinuePopup({navigation}){
           </View>
   
           <View style={styles.loginButtonsContainer}>
+            <Pressable 
+                  style={({pressed}) => [styles.button, {backgroundColor: pressed ? 'gold' : 'gold', borderColor: 'gold', opacity: pressed ? 0.5 : 1}]}
+                  onPress={() => {
+                    console.log("sign in button pressed");
+                    navigation.navigate("Sign in Screen");
+                }}
+            >
+                  {({pressed}) => (
+                      <Text style={[styles.signInButtonText, {color: 'black'}]}>Sign In</Text>
+                  )}
+            </Pressable>
   
-                  <Pressable 
-                      style={({pressed}) => [styles.button, {backgroundColor: pressed ? 'gold' : 'gold', borderColor: 'gold', opacity: pressed ? 0.5 : 1}]}
-                      onPress={() => {
-                        console.log("sign in button pressed");
-                        navigation.navigate("Sign in Screen");
-                    }}
-                  >
-                      {({pressed}) => (
-                          <Text style={[styles.signInButtonText, {color: 'black'}]}>Sign In</Text>
-                      )}
-                  </Pressable>
-  
-                  <Pressable 
-                      style={({pressed}) => [styles.button, {backgroundColor: pressed ? 'black' : 'black', borderColor: 'black', opacity: pressed ? 0.5 : 1}]}
-                      onPress={() => console.log("create account button pressed")}
-                  >
-                      {({pressed}) => (
-                          <Text style={[styles.createAccountButtonText,{color: 'white'}]}>Create Account</Text>
-                      )}
-                  </Pressable>
-  
-  
-                  <View>
-                      
-                  </View>
-  
-              </View>
-  
-          
+            <Pressable 
+                  style={({pressed}) => [styles.button, {backgroundColor: pressed ? 'black' : 'black', borderColor: 'black', opacity: pressed ? 0.5 : 1}]}
+                  onPress={() => console.log("create account button pressed")}
+            >
+                  {({pressed}) => (
+                      <Text style={[styles.createAccountButtonText,{color: 'white'}]}>Create Account</Text>
+                  )}
+            </Pressable>
+          </View>
         </View>
       </View>
     )

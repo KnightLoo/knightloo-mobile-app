@@ -1,15 +1,8 @@
 import React, {useEffect, useState, useRef, useContext} from 'react';
-import { StyleSheet, Button, Text, TextInput, View, Dimensions, Pressable, Platform, ScrollView, SafeAreaView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Vibration} from 'react-native';
+import { StyleSheet, Text, TextInput, View, Dimensions, Pressable, Platform } from 'react-native';
 import AppContext from '../contexts/AppContext';
 import * as Haptics from 'expo-haptics';
-import { FontAwesome5 } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons';
-import { Rating, AirbnbRating } from 'react-native-ratings';
-
-// import { SafeAreaView } from 'react-native-safe-area-context';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import { useHeaderHeight } from '@react-navigation/elements';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Rating } from 'react-native-ratings';
 
 import firebase from 'firebase/app';
 import 'firebase/firestore';
@@ -102,7 +95,6 @@ export default function LeaveReviewScreen({navigation}){
                         placeholder="Detail your experience" 
                         multiline={true}
                         maxLength={140}
-                        // scrollEnabled={false}
                         numberOfLines={5}
                     />
                 </View>
@@ -139,20 +131,13 @@ export default function LeaveReviewScreen({navigation}){
 
         </Pressable>
     );
-
-
 }
 
 
 const styles = StyleSheet.create({
     scrollView: {
-        // flex: 1,
-        // height: 760,
-        // flexGrow: 1, 
         backgroundColor: '#fff',
-        // height: '100%',
         alignItems: 'center'
-
     },
     screen: {
         flex: 1,
@@ -177,12 +162,10 @@ const styles = StyleSheet.create({
         fontWeight: '600'
     },
     reviewTextInputContainer: {
-        // flex: 1,
         width: '100%',
         marginTop: 20,
     },
     fieldHeaderText: {
-        // color: 'gray',
         fontSize: 17,
         paddingLeft: 15,
         fontWeight: '400',
@@ -192,9 +175,7 @@ const styles = StyleSheet.create({
     },
     textInput: {
         fontSize: 17,
-
         height: Dimensions.get("window").height * 0.15,
-        // maxHeight: Dimensions.get("window").height * 0.25,
         borderBottomColor: '#D3D3D3',
         borderBottomWidth: 1,
         borderTopColor: '#D3D3D3',
@@ -209,9 +190,7 @@ const styles = StyleSheet.create({
     },
     button: {
         flexGrow: 1,
-        // flexDirection: 'row',
         marginHorizontal: 10,
-        // width: '100%',
         borderRadius: 5,
         marginVertical: 10,
         paddingVertical: 12,
