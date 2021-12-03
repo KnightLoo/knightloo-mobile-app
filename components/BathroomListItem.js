@@ -23,9 +23,6 @@ export default function BathroomListItem({navigation, landmark, useRemoveBookmar
 
     const dayInd = mod(new Date().getDay() - 1, 7);
 
-    // useEffect(() => {
-    //   console.log(landmark.id);
-    // }, [landmark]);
 
     useEffect(() => {
 
@@ -33,28 +30,13 @@ export default function BathroomListItem({navigation, landmark, useRemoveBookmar
         if(bookmarkedLandmarkIds && bookmarkedLandmarkIds.length > 0){
 
           if(useRemoveBookmarkAnimation && !bookmarkedLandmarkIds.includes(landmark.id)){
-            console.log(".............gonna use animationnnnnnnnn........");
+            
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-            // LayoutAnimation.configureNext(
-            //   LayoutAnimation.create(
-            //     2000,
-            //     LayoutAnimation.Types.linear,
-            //     LayoutAnimation.Properties.scaleY
-            //   )
-            // );
           } 
           setIsBookmarked(bookmarkedLandmarkIds.includes(landmark.id));
         } else {
           if(useRemoveBookmarkAnimation){
-            console.log(".............gonna use animationnnnnnnnn..fkjkljklkjk......");
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-            // LayoutAnimation.configureNext(
-            //   LayoutAnimation.create(
-            //     2000,
-            //     LayoutAnimation.Types.linear,
-            //     LayoutAnimation.Properties.scaleY
-            //   )
-            // );
           }
           setIsBookmarked(false);
         }
@@ -85,9 +67,6 @@ export default function BathroomListItem({navigation, landmark, useRemoveBookmar
             console.error("Error updating bookmark ", error);
         });
       }
-      else {
-        // console.log("nothing happening");
-      }
       
     };
 
@@ -98,9 +77,7 @@ export default function BathroomListItem({navigation, landmark, useRemoveBookmar
         (<View style={styles.container}>
         <View style={styles.textContainer}>
             <Text style={styles.landmarkTitle}>{landmark.building}</Text>
-            {/* <Text style={styles.landmarkDesc}>Knights Plaza</Text> */}
-            {/* <Text style={styles.landmarkDesc}>{landmark.gender ? landmark.gender.charAt(0).toUpperCase() + landmark.gender.slice(1) : ""}</Text> */}
-
+  
             <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingVertical: 4}}>
                 <Text style={styles.landmarkDesc}>{landmark.gender ? landmark.gender.charAt(0).toUpperCase() + landmark.gender.slice(1) : ""} </Text>
                 <Text style={styles.middleDot}>{'\u2B24'}</Text>
@@ -108,8 +85,6 @@ export default function BathroomListItem({navigation, landmark, useRemoveBookmar
               </View>
 
             <BathroomHoursOfOperationText hopData={landmark.hopData.flattenedHopDataForFilteringAndMutating[dayInd]}/>
-
-            {/* <BathroomHoursOfOperationText hopData={landmark.hopData.flattenedHopDataForFilteringAndMutating[mod(new Date().getDay() - 1, 7)]}/> */}
             
             <View style={styles.handicapInfoContainer}>
 
