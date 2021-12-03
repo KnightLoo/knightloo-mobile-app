@@ -11,6 +11,10 @@ import * as Location from 'expo-location';
 
 import AppLoading from 'expo-app-loading';
 // import firebase from 'firebase/app';
+import {
+  BottomSheetModalProvider,
+} from '@gorhom/bottom-sheet';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
 
 
@@ -26,7 +30,10 @@ import BookmarksTab from './screens/BookmarksTab';
 
 import LeaveReviewScreen from './screens/LeaveReviewScreen';
 import FilterScreen from './screens/FilterScreen';
+
 import AccountScreen from './screens/AccountScreen';
+import AccountStack from './screens/AccountStack';
+
 import AdjustLocationScreen from './screens/AdjustLocationScreen';
 import ReportIssueScreen from './screens/ReportIssueScreen';
 import EditHoursOfOperationScreen from './screens/EditHoursOfOperationScreen';
@@ -66,8 +73,10 @@ export default function App() {
   const [filterQuery, setFilterQuery] = useState({});
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
-  const [wasLocationPermissionDenied, setWasLocationPermissionDenied] = useState(false);
+  // const [wasLocationPermissionDenied, setWasLocationPermissionDenied] = useState(false);
+  const [locationRelatedError, setLocationRelatedError] = useState(null);
 
+  const [landmarkUnderReview, setLandmarkUnderReview] = useState(null);
   const [landmarkUnderEdit, setLandmarkUnderEdit] = useState(null);
   const [curLandmarkHopData, setCurLandmarkHopData] = useState(null);
   const [editedMapLocation, setEditedMapLocation] = useState(null);
@@ -84,7 +93,6 @@ export default function App() {
   const [cachedBookmarkedLandmarks, setCachedBookmarkedLandmarks] = useState(null);
   const [needsToFetchBookmarks, setNeedsToFetchBookmarks] = useState(false);
 
-  // const [reviewsCache, setReviewsCache] = useState([]);
 
   const signInToContinueSheetRef = useRef();
   const editHoursOfOppRef = useRef();
@@ -111,11 +119,6 @@ export default function App() {
 
   }, []);
 
-  // useEffect(() => {
-
-  //   console.log("bookmark ids changed: ", bookmarkedLandmarkIds);
-
-  // }, [bookmarkedLandmarkIds]);
 
   useEffect(() => {
 
@@ -168,74 +171,63 @@ export default function App() {
 
   }, [user]);
 
-//   useEffect(() => {
 
-//     async function getLocation(){
+  async function getLocation(){
 
-//         console.log("getting user location");
+    console.log("getting user location");
 
-//         let { status } = await Location.requestForegroundPermissionsAsync();
-//         if (status !== 'granted') {
-//             setWasLocationPermissionDenied(true);
-//             return;
-//         }
+    console.log("about to ask for permission");
 
-//         const userLocation = await Location.getCurrentPositionAsync({});
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+        console.log("denied");
+        // setWasLocationPermissionDenied(true);
+        setLocationRelatedError("Location services must be enabled in order to use this app.");
+        return;
+    } else {
+      console.log("granted");
+    }
 
-//         const initialRegion = {
-//             latitude: userLocation.coords.latitude || 37.78825,
-//             longitude: userLocation.coords.longitude || -122.4324,
-//             latitudeDelta: 0.015684156756595513,
-//             longitudeDelta: 0.008579808767251507,
-//         };
+    const provStatus = await Location.getProviderStatusAsync();
+    console.log(provStatus);
 
-//         setLocation(userLocation);
-//         setRegion(initialRegion);
-//     }
-    
-//       getLocation();
-    
-// }, []);
+    console.log("about r get location");
+    try {
+      const userLocation = await Location.getCurrentPositionAsync({enableHighAccuracy: false});
+      console.log("got location");
 
-async function getLocation(){
+        const initialRegion = {
+          latitude: userLocation.coords.latitude || 37.78825,
+          longitude: userLocation.coords.longitude || -122.4324,
+          latitudeDelta: 0.015684156756595513,
+          longitudeDelta: 0.008579808767251507,
+      };
 
-  console.log("getting user location");
+      setLocation(userLocation);
+      setRegion(initialRegion);
 
-  let { status } = await Location.requestForegroundPermissionsAsync();
-  if (status !== 'granted') {
-      setWasLocationPermissionDenied(true);
-      return;
+    } catch(error){
+      console.log("errrror: ", error);
+    }
   }
-
-  const userLocation = await Location.getCurrentPositionAsync({});
-
-  const initialRegion = {
-      latitude: userLocation.coords.latitude || 37.78825,
-      longitude: userLocation.coords.longitude || -122.4324,
-      latitudeDelta: 0.015684156756595513,
-      longitudeDelta: 0.008579808767251507,
-  };
-
-  setLocation(userLocation);
-  setRegion(initialRegion);
-}
 
 
   return (
+    // <BottomSheetModalProvider>
     <AppProvider value={{filterQuery, setFilterQuery, filterScreenRef, landmarkUnderEdit, setLandmarkUnderEdit, 
                          curLandmarkHopData, setCurLandmarkHopData, editHoursOfOppRef, editMapScreenRef, editedMapLocation, 
                          setEditedMapLocation, location, region, bottomSheetModalRef, signInToContinueSheetRef, user, setUser,
                          isAppWideLoading, setIsAppWideLoading, selectedLandmark, setSelectedLandmark, needsToShowReviewScreen, 
                          setNeedsToShowReviewScreen, bookmarkedLandmarkIds, cachedBookmarkedLandmarks, setCachedBookmarkedLandmarks,
                          needsToFetchBookmarks, setNeedsToFetchBookmarks, reportIssueScreenRef, selectedBookmarkedLandmark, 
-                         setSelectedBookmarkedLandmark, didComeFromReviewButtonPress, setDidComeFromReviewButtonPress}}>
+                         setSelectedBookmarkedLandmark, didComeFromReviewButtonPress, setDidComeFromReviewButtonPress, landmarkUnderReview, 
+                         setLandmarkUnderReview}}>
       <>
       {location && isAppReady ? 
       (<NavigationContainer>
           <Stack.Navigator
               screenOptions={({route, navigation}) => {
                 
-
                 return { 
                   safeAreaInsets: { top: 0 },
                   headerStyle: {
@@ -263,18 +255,33 @@ async function getLocation(){
                 // ref={backRef}
                 ref={filterScreenRef}
                 options={{
+                    title:"Filters",
+                    headerTitleAlign: 'center',
                     headerBackTitle: "Back",
                     headerBackTitleStyle: {color: "#007bff"},
                     headerLeftContainerStyle: {paddingLeft: 5},
-                    headerRight: () => (
-                        <Button
-                            onPress={() => filterScreenRef.current.resetFilters()}
-                            title="Reset"
-                            color="#007bff"
+                    // headerRight: () => (
+                    //     <Button
+                    //         onPress={() => filterScreenRef.current.resetFilters()}
+                    //         title="Reset"
+                    //         color="#007bff"
                   
-                        />
-                    ), 
-                    headerRightContainerStyle: {paddingRight: 5}
+                    //     />
+                    // ), 
+                    headerRight: () => (
+                      <Pressable
+                        onPress={() => filterScreenRef.current.resetFilters()}
+                      >
+                          {({ pressed }) => (
+                              <Text style={{opacity: pressed  ? 0.25 : 1, elevation: 3, color: "#007bff", fontSize: 17}}>
+                                  Reset
+                              </Text>
+                          )}
+                                      
+                      </Pressable>
+                    ),
+                    // headerRightContainerStyle: {paddingRight: 5}
+                    headerRightContainerStyle: {paddingRight: 20}
                 }}
               />
 
@@ -293,12 +300,27 @@ async function getLocation(){
               <Stack.Screen 
                 name="Hours of Operation" 
                 component={EditHoursOfOperationScreen} 
-                options={{ 
+                options={({navigation}) => ({ 
                   presentation: 'modal', 
                   gestureEnabled: false,
                   headerBackImage: () => <></>,
                   headerBackTitle: "Cancel",
                   headerBackTitleStyle: {marginLeft: 20},
+                  headerLeft: () => (
+                    <Pressable
+                        onPress={() => {
+                            console.log("cancel HOP button pressed");
+                            navigation.goBack();
+                        }}
+                    >
+                        {({ pressed }) => (
+                            <Text style={{opacity: pressed  ? 0.25 : 1, elevation: 3, color: "#007bff", fontSize: 17}}>
+                                Cancel
+                            </Text>
+                        )}
+                                    
+                    </Pressable>
+                  ),
                   headerRight: () => (
                     <Pressable 
                         style={{paddingRight: 20}}
@@ -316,7 +338,8 @@ async function getLocation(){
                     </Pressable>
                   ), 
                   // headerRightContainerStyle: {paddingRight: 20}
-                }} 
+                  headerLeftContainerStyle: {paddingLeft: 20}
+                })} 
               />
 
               
@@ -341,6 +364,7 @@ async function getLocation(){
                 name="Sign in Screen" 
                 component={SignInScreen}
                 options={({navigation, route}) => ({
+                    title: "Sign in",
                     headerBackTitle: "Back",
                     // headerBackTitleStyle: {color: "#007bff"},
                     headerLeftContainerStyle: {paddingLeft: 5},
@@ -372,6 +396,7 @@ async function getLocation(){
                 name="Create Account Screen" 
                 component={SignUpScreen}
                 options={({navigation}) => ({
+                    title: "Create Account",
                     headerBackTitle: "Back",
                     headerBackTitleStyle: {color: "#007bff"},
                     headerLeftContainerStyle: {paddingLeft: 5},
@@ -407,8 +432,24 @@ async function getLocation(){
                   presentation: 'modal', 
                   gestureEnabled: false,
                   headerBackImage: () => <></>,
+                  headerLeft: () => (
+                    <Pressable
+                        onPress={() => {
+                            console.log("cancel leave review button pressed");
+                            navigation.goBack();
+                        }}
+                    >
+                        {({ pressed }) => (
+                            <Text style={{opacity: pressed  ? 0.25 : 1, elevation: 3, color: "#007bff", fontSize: 17}}>
+                                Cancel
+                            </Text>
+                        )}
+                                    
+                    </Pressable>
+                  ),
                   headerBackTitle: "Cancel",
                   headerBackTitleStyle: {marginLeft: 20},
+                  headerLeftContainerStyle: {paddingLeft: 20}
                 })} 
               />  
 
@@ -435,11 +476,11 @@ async function getLocation(){
         //       <Text>Loading</Text>
         //     }
         //     </View>
-        //   )
+     //style={{fontSize: 20, fontWeight: '600'}}>Location services must be enabled in order to use this app.
         (<>
-          {wasLocationPermissionDenied ? (
+          {locationRelatedError ? (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-              <Text>Location Permission was denied</Text> :
+              <Text style={{fontSize: 20, fontWeight: '600'}}>{locationRelatedError}</Text> 
             </View>
           ) : (
           <AppLoading
@@ -447,6 +488,7 @@ async function getLocation(){
             onFinish={() => setIsAppReady(true)}
             onError={() => {
               console.warn("error getting location");
+              setLocationRelatedError("Unable to get location. Try again later.");
             }}
           />
           )
@@ -466,20 +508,38 @@ async function getLocation(){
       }
       </>
     </AppProvider>
+    // </BottomSheetModalProvider>
   );
 }
 
 function MainAppFlow({navigation}){
 
-  const Tab = createBottomTabNavigator();
+  
+  const Tab = Platform.OS === "ios" ? createBottomTabNavigator() : createMaterialBottomTabNavigator();
+
 
   const {signInToContinueSheetRef} = useContext(AppContext);
 
   return (
     <>
+    {/* <>
+    <SignInToContinueBottomSheet style={{zIndex: 110}} navigation={navigation} signInToContinueSheetRef={signInToContinueSheetRef}/>
+</> */}
+    {/* <View style={{display: 'flex', flex: 1, zIndex: 100}}> */}
+    <>
     <Tab.Navigator 
+    barStyle={{
+      // borderTopWidth: 0.5,
+      // borderTopColor: 'gray',
+      borderTopColor: 'gray',
+      borderTopWidth: 0.5,
+      // paddingTop: 0,
+      backgroundColor: 'white'
+    }}
       screenOptions={{
+      
         tabBarStyle: { 
+         
           // backgroundColor: '#202020',
           // borderTopColor: '#404040',
           // borderTopWidth: 1,
@@ -526,9 +586,11 @@ function MainAppFlow({navigation}){
           }}
       /> */}
       <Tab.Screen 
-          name="Account" 
-          component={AccountScreen} 
+          name="Account Stack" 
+          component={AccountStack} 
           options={{
+            headerShown: false,
+            // headerTitle: "Account",
             tabBarLabel: "Account",
             tabBarIcon: ({ focused }) => (
               <Ionicons name={focused ? "person" : "person-outline"} size={24} color="black" />
@@ -536,9 +598,14 @@ function MainAppFlow({navigation}){
             tabBarActiveTintColor: "black"
           }}
       />
-  </Tab.Navigator>
+    </Tab.Navigator>
+  </>
+  {/* </View> */}
+    {/* <View style={{position: 'absolute', zIndex: 110}}> */}
     
     <SignInToContinueBottomSheet navigation={navigation} signInToContinueSheetRef={signInToContinueSheetRef}/>
+      
+    {/* </View> */}
 
   </>
   );
@@ -589,8 +656,8 @@ function ReportIssueNestedStack({navigation}){
       <Stack.Screen 
           name="Edit Bathroom Details" 
           component={ReportIssueScreen} 
-          options={{ 
-            headerStatusBarHeight: 0,
+          options={({navigation}) => ({ 
+            // headerStatusBarHeight: 0,
             // cardOverlayEnabled: true,
             cardStyle: {
               backgroundColor: 'transparent',
@@ -611,6 +678,22 @@ function ReportIssueNestedStack({navigation}){
             headerStyle: {backgroundColor: 'transparent'},
             headerBackTitle: "Cancel",
             headerBackTitleStyle: {marginLeft: 20},
+            
+            headerLeft: () => (
+              <Pressable
+                  onPress={() => {
+                      console.log("cancel report issue button pressed");
+                      navigation.goBack();
+                  }}
+              >
+                  {({ pressed }) => (
+                      <Text style={{opacity: pressed  ? 0.25 : 1, elevation: 3, color: "#007bff", fontSize: 17}}>
+                          Cancel
+                      </Text>
+                  )}
+                              
+              </Pressable>
+            ),
             headerRight: () => (
               // <Button
               //     onPress={() => console.log("Here")}
@@ -633,8 +716,9 @@ function ReportIssueNestedStack({navigation}){
                               
               </Pressable>
             ), 
+            headerLeftContainerStyle: {paddingLeft: 20},
             headerRightContainerStyle: {paddingRight: 20}
-          }} 
+          })} 
       />
 
       <Stack.Screen 

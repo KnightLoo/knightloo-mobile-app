@@ -56,6 +56,7 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
 
     const [mapCenter, setMapCenter] = useState(null);
 
+    const toiletIconTopMargin = Platform.OS === "ios" ? 10 : -5;
 
     useImperativeHandle(reportIssueScreenRef, () => ({
 
@@ -65,6 +66,8 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
             let edits = {};
+
+            console.log("djksjkdjkdjkjdkjdkjdkjdkjfkdjkfdjdkjdkjdkdjkd");
 
             if(editedBathroomName != null && editedBathroomName != "" && editedBathroomName != landmarkUnderEdit.building){
                 edits["edited_bathroom_name"] = editedBathroomName;
@@ -81,14 +84,20 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
                 };
             }
 
-            if(Object.keys(edits).length > 0){
+            console.log("before hereerrerrrrrr");
 
+            if(Object.keys(edits).length > 0){
+                console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
                 edits["landmark_id"] = landmarkUnderEdit.id;
+                edits["gender"] = landmarkUnderEdit.gender;
+                edits["building"] = landmarkUnderEdit.building;
+                edits["floor"] = landmarkUnderEdit.floor;
+                edits["status"] = "pending";
 
                 const landmarkReportedIssuesRef = db.collection("landmark_reported_issues");
 
                 try {
-
+                    console.log(edits);
                     await landmarkReportedIssuesRef.add(edits);
                     navigation.goBack();
                 } catch(error){
@@ -121,8 +130,8 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
 
     const handleTimeslotDelete = (i) => {
 
-        console.log("delete pressed");
-
+        // console.log("delete pressed");
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
         let timeslotsAfterDeletion = [];
@@ -140,16 +149,13 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
         }
 
         if(i == 0){
-            console.log("here");
             timeslotsAfterDeletion = curHopData.displayableHopData.slice(1);
         } else {
-            console.log("here 2");
-            timeslotsAfterDeletion = curHopData.displayableHopData.slice(0, i).concat(curHopData.displayableHopData.slice(i+1));
-            
+            timeslotsAfterDeletion = curHopData.displayableHopData.slice(0, i).concat(curHopData.displayableHopData.slice(i+1));    
         }
 
-        console.log(timeslotsAfterDeletion);
-        console.log(newFlattenedHopDataForFilteringAndMutating);
+        // console.log(timeslotsAfterDeletion);
+        // console.log(newFlattenedHopDataForFilteringAndMutating);
 
         if(timeslotsAfterDeletion && timeslotsAfterDeletion.length > 0){
             setCurLandmarkHopData({displayableHopData: timeslotsAfterDeletion, flattenedHopDataForFilteringAndMutating: newFlattenedHopDataForFilteringAndMutating});
@@ -163,7 +169,6 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
 
         previewEditMapRef.current.getCamera().then(camera => {
             previewEditMapRef.current.pointForCoordinate({latitude: camera.center.latitude, longitude: camera.center.longitude}).then(point => {
-                console.log("inside getCenterPosition in report issue screen");
                 setMapCenter(point);
             });
         });
@@ -180,7 +185,7 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
         <KeyboardAvoidingView style={{flex: 1, backgroundColor: 'white'}} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={offset}>
             <ScrollView style={{flex: 1}} contentContainerStyle={{flexGrow: 1}}> 
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <>
+                <>
                     <View style={styles.nameFieldContainer}>
                         <Text style={styles.fieldHeaderText}>Name</Text>
                         <View style={styles.inputContainer}>
@@ -206,78 +211,45 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
                         
                     </View>
                     
-                    {/* <View style={{flex: 1, width: '100%', borderWidth: 1, justifyContent: 'center', alignItems: 'center'}}>
-                        <View style={{width: 50, minHeight: 50, borderRadius: 25, backgroundColor: 'gold', padding: 15}}>
-                            <FontAwesome5 name="toilet" size={24} color="black" style={{borderWidth: 0, position: 'relative', left: 0.5}}/>
-                        </View>
-                    </View> */}
-
-                    {/* <View style={{flex: 1, width: '100%', borderWidth: 1, justifyContent: 'center', alignItems: 'center'}}>
-                        <View style={{position: 'relative'}}>
-                            <FontAwesome5 name="map-marker" size={55} color="gold" />
-                            <FontAwesome5 name="toilet" size={24} color="black" style={{position: 'absolute', zIndex: 99, margin: 'auto', top: 10, left: 0, right: 0, bottom: 0, textAlign: 'center', textAlignVertical: 'center'}}/>
-                        </View>
-                    </View> */}
                     <Text style={[styles.fieldHeaderText, {marginTop: 25}]}>Location</Text>
 
 
-                    {true &&
+
                 
                     <Pressable 
-                    // height: '30%',
-                        style={{height: Dimensions.get("window").height * 0.25,backgroundColor: 'red',  borderWidth: 0, marginTop: 8}}
+                        style={{height: Dimensions.get("window").height * 0.25, borderWidth: 0, marginTop: 8}}
                         onPress={() => {
                             console.log("Edit Location button pressed");
                             navigation.navigate("Edit Location");
                         }}
                     >
                         <View style={styles.mapContainer} pointerEvents={"none"}>
-                            {/* <View style={{}} pointerEvents={"none"}> */}
-                                <MapView
-                                    legalLabelInsets={{top: -30, right: 0, left: 0, bottom: 0}}
-                                    rotateEnabled={false}
-                                    zoomEnabled={false}
-                                    scrollEnabled={false}
-                                    pitchEnabled={false}
-                                    ref={previewEditMapRef}
-                                    onMapReady={getCenterPosition}
-                                    showsUserLocation={false}
-                                    showsMyLocationButton={false}
-                                    style={styles.map}
-                                    region={{
-                                        latitude: editedMapLocation.latitude,
-                                        longitude: editedMapLocation.longitude,
-                                        // latitude: landmarkUnderEdit.latitude,
-                                        // longitude: landmarkUnderEdit.longitude,
-                                        // latitudeDelta: 0.0018652108904291254,
-                                        // longitudeDelta: 0.002244906182966133,
-                                        latitudeDelta: 0.001,
-                                        longitudeDelta: 0.002,
-                                    }}
-                                    // onRegionChangeComplete={(region) => console.log(region)}
-                                >
-                                    <MapView.Marker 
-                                        coordinate={{
-                                            latitude: editedMapLocation.latitude,
-                                            longitude: editedMapLocation.longitude,
-                                        }}
-                                    />
-                                </MapView>
-                            {/* </View> */}
-
-                            {/* <View style={styles.markerFixed}>
-                                
-                                <View style={{position: 'relative'}}>
-                                        <FontAwesome5 name="map-marker" size={55} color="gold" />
-                                        <FontAwesome5 name="toilet" size={24} color="black" style={{position: 'absolute', zIndex: 99, margin: 'auto', top: 10, left: 0, right: 0, bottom: 0, textAlign: 'center', textAlignVertical: 'center'}}/>
-                                </View>
-                            </View> */}
+                            
+                            <MapView
+                                legalLabelInsets={{top: -30, right: 0, left: 0, bottom: 0}}
+                                rotateEnabled={false}
+                                zoomEnabled={false}
+                                scrollEnabled={false}
+                                pitchEnabled={false}
+                                ref={previewEditMapRef}
+                                onMapReady={getCenterPosition}
+                                showsUserLocation={false}
+                                showsMyLocationButton={false}
+                                style={styles.map}
+                                region={{
+                                    latitude: editedMapLocation.latitude,
+                                    longitude: editedMapLocation.longitude,
+                                    latitudeDelta: 0.001,
+                                    longitudeDelta: 0.002,
+                                }}
+                            />
+                    
 
                             {mapCenter && 
                                 <View style={[{position: 'absolute'}, {top: mapCenter.y, left: mapCenter.x, marginTop: -55, marginLeft: -20.75}]}>
-                                    <View style={{position: 'relative'}} onLayout={(e) => console.log(e.nativeEvent.layout) }>
+                                    <View style={{position: 'relative'}}>
                                         <FontAwesome5 name="map-marker" size={55} color="gold" />
-                                        <FontAwesome5 name="toilet" size={24} color="black" style={{position: 'absolute', zIndex: 99, margin: 'auto', top: 10, left: 0, right: 0, bottom: 0, textAlign: 'center', textAlignVertical: 'center'}}/>
+                                        <FontAwesome5 name="toilet" size={24} color="black" style={{position: 'absolute', zIndex: 99,  margin: 'auto', top: toiletIconTopMargin, left: 0, right: 0, bottom: 0, textAlign: 'center', textAlignVertical: 'center'}} /> 
                                     </View>
                                 </View>
                             }
@@ -285,80 +257,57 @@ export default ReportIssueScreen = forwardRef( ({navigation}, ref) => {
                             <View style={{ justifyContent: 'center', alignItems: 'center', position: 'absolute', top: '80%', bottom: 0, left: 0, right: 0, backgroundColor: '#efeeeb', borderWidth: 0}}>
                                 <Text style={{paddingVertical: 0, color: 'gray'}}>Tap map to edit location</Text>
                             </View>
-
-                            
                         </View>
-                        
                     </Pressable>
                     
+                    <Text style={[styles.fieldHeaderText, {marginTop: 25}]}>Hours of Operation</Text>
 
-                        }
+                    <View style={styles.hoursOfOpertionListContainer}>
                         
-                        {/* <Text>Location</Text>
+                        {curLandmarkHopData != null && curLandmarkHopData.displayableHopData != null && curLandmarkHopData.displayableHopData.map((timeslot, i) => (
 
-                        <Text>Hours</Text> */}
+                            <View key={i} style={[styles.hoursOfOperationItem, {borderTopWidth: i != 0 ? 1: 0}]}>
 
-                    {/* <View style={{flexGrow: 1, justifyContent: 'flex-start'}}> */}
-
-                        <Text style={[styles.fieldHeaderText, {marginTop: 25}]}>Hours of Operation</Text>
-
-                        <View style={styles.hoursOfOpertionListContainer}>
-                         
-                            {curLandmarkHopData != null && curLandmarkHopData.displayableHopData != null && curLandmarkHopData.displayableHopData.map((timeslot, i) => (
-
-                                <View key={i} style={[styles.hoursOfOperationItem, {borderTopWidth: i != 0 ? 1: 0}]}>
-
-                                           
-                                    <View style={styles.daysContainer}>
-                                        {timeslot.days.map(day => (
-                                            <Text key={day} style={styles.dayItem}>{day}</Text>
-                                        ))}
-                                    </View>
-
-                                    <View style={styles.hoursContainer}>
-                                        {timeslot.isAllDay ?
-                                            <Text style={styles.hourItem}>Open 24 Hours</Text> :
-                                            // <Text style={styles.hourItem}>{timeslot.startEtHour}:{String(timeslot.startEtMin).padStart(2, '0')} {timeslot.startEtDayTime} - {timeslot.endEtHour}:{String(timeslot.endEtMin).padStart(2, '0')} {timeslot.endEtDayTime}</Text>
-                                            <Text style={styles.hourItem}>{timeslot.etRangeStr}</Text>
-                                        }
-                                    </View>
-
-                                    <Pressable onPress={() => handleTimeslotDelete(i)} style={styles.deleteTimeslotIconContainer}>
-                                        <Ionicons name="ios-close-circle" size={18} color="#C8C8C8" />
-                                    </Pressable>
+                                        
+                                <View style={styles.daysContainer}>
+                                    {timeslot.days.map(day => (
+                                        <Text key={day} style={styles.dayItem}>{day}</Text>
+                                    ))}
                                 </View>
-                            ))}
 
-                            <Pressable 
-                                style={({ pressed }) => [
-                                    {backgroundColor: pressed ? "#D0D0D0" : 'white'},
-                                    
-                                ]}
-                                onPress={() => {
-                                    console.log("Add hours button pressed");
-                                    navigation.navigate("Hours of Operation")
-                                }}
-                            >
-                                <View style={[styles.addHoursButtonContainer, {borderTopWidth: curLandmarkHopData != null && curLandmarkHopData.displayableHopData != null ? 1 : 0}] }>
-                                    <Text style={styles.addHoursButtonText}>
-                                        Add
-                                    </Text>
+                                <View style={styles.hoursContainer}>
+                                    {timeslot.isAllDay ?
+                                        <Text style={styles.hourItem}>Open 24 Hours</Text> :
+                                        // <Text style={styles.hourItem}>{timeslot.startEtHour}:{String(timeslot.startEtMin).padStart(2, '0')} {timeslot.startEtDayTime} - {timeslot.endEtHour}:{String(timeslot.endEtMin).padStart(2, '0')} {timeslot.endEtDayTime}</Text>
+                                        <Text style={styles.hourItem}>{timeslot.etRangeStr}</Text>
+                                    }
                                 </View>
-                               
+
+                                <Pressable onPress={() => handleTimeslotDelete(i)} style={styles.deleteTimeslotIconContainer}>
+                                    <Ionicons name="ios-close-circle" size={18} color="#C8C8C8" />
+                                </Pressable>
+                            </View>
+                        ))}
+
+                        <Pressable 
+                            style={({ pressed }) => [
+                                {backgroundColor: pressed ? "#D0D0D0" : 'white'},
+                                
+                            ]}
+                            onPress={() => {
+                                // console.log("Add hours button pressed");
+                                navigation.navigate("Hours of Operation");
+                            }}
+                        >
+                            <View style={[styles.addHoursButtonContainer, {borderTopWidth: curLandmarkHopData != null && curLandmarkHopData.displayableHopData != null ? 1 : 0}] }>
+                                <Text style={styles.addHoursButtonText}>
+                                    Add
+                                </Text>
+                            </View>
                             
-                            </Pressable>
-                        </View>
-
-                   
-
-
-                   
-
-
-
-                
-
-
+                        
+                        </Pressable>
+                    </View>
                 </>
             </TouchableWithoutFeedback>
             </ScrollView>
@@ -453,39 +402,23 @@ const styles = StyleSheet.create({
         // paddingRight: 50
     },
     hoursOfOpertionListContainer: {
-        // flex: 1,
-        // width: 50,
         borderBottomColor: '#D3D3D3',
         borderBottomWidth: 1,
         borderTopColor: '#D3D3D3',
         borderTopWidth: 1,
         marginVertical: 10,
-        // paddingLeft: 18,
-
-        // borderWidth: 1,
-        // borderColor: 'red'
-        // justifyContent: 'center'
     },
     hoursOfOperationItem: {
-        // width: '100%',
-        // flex:1,
         flexDirection: 'row',
-        // justifyContent: 'center'
-        // backgroundColor: 'green'
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 14,
         borderTopColor: '#D3D3D3',
-        // paddingLeft: 18
         marginLeft: 18
     },
     daysContainer: {
-        // flex: 1,
-        // flexDirection: 'column',
-        // borderWidth: 1,
         width: '20%',
         marginRight: 0,
-        // flexGrow: 1
     },
     dayItem: {
         paddingVertical: 2,
@@ -517,5 +450,4 @@ const styles = StyleSheet.create({
         fontSize: 17,
         elevation: 3,
     }
-
 });

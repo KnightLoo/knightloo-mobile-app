@@ -30,50 +30,6 @@ export default function BookmarksScreen({navigation}){
         navigation.navigate("Bookmarked Details View");
     }
 
-
-    // const handleToggleBookmark = (isBookmarked, landmark, useRemoveBookmarkAnimation) => {
-
-    //     const newIsBookmarked = !isBookmarked;
-  
-    //     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-  
-    //     if(user && landmark && landmark.id){
-    //       const userBookmarkDocRef = db.collection("bookmarks").doc(user.uid);
-  
-    //       if(useRemoveBookmarkAnimation && !newIsBookmarked){
-    //         console.log(".............gonna use animationnnnnnnnn........");
-    //         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    //         // LayoutAnimation.configureNext(
-    //         //   LayoutAnimation.create(
-    //         //     500,
-    //         //     LayoutAnimation.Types.linear,
-    //         //     LayoutAnimation.Properties.scaleY
-    //         //   )
-    //         // );
-    //       }
-  
-    //     //   setIsBookmarked(newIsBookmarked);
-  
-    //       userBookmarkDocRef.set({
-    //         bookmarkedLandmarkIds: newIsBookmarked ? firebase.firestore.FieldValue.arrayUnion(landmark.id) : firebase.firestore.FieldValue.arrayRemove(landmark.id)
-    //       }, { merge: true })
-    //       .then(() => {
-    //         console.log("Bookmarks updated successfully");
-    //       })
-    //       .catch((error) => {
-    //           console.error("Error updating bookmark ", error);
-    //       });
-    //     }
-    //     else {
-    //       console.log("nothing happening");
-    //     }
-        
-    //   };
-
-
-
-
-
     useEffect(() => {
 
         console.log("bm useeffect");
@@ -157,17 +113,28 @@ export default function BookmarksScreen({navigation}){
             (<SafeAreaView style={styles.screen}>
                 <FlatList
                     style={{width: '100%', flex: 1}}
-                    // ItemSeparatorComponent={() => <View style={styles.listItemSeparator} />}
                     contentContainerStyle={{flexGrow: 1, borderTopWidth: 1, borderBottomWidth: 0, borderColor: '#C8C8C8'}}
-                    // ListHeaderComponent={<LandmarkDetailScreenHeader selectedLandmark={selectedLandmark} setModalVisible={setModalVisible} navigation={navigation} />}
                     ListHeaderComponentStyle={styles.headerComponentStyle} // cachedBookmarkedLandmarks != null  landmarks={cachedBookmarkedLandmarks}
                     ListEmptyComponent={ isFetchingBookmarks ? <LoadingBookmarksView /> : <NoBookmarksView /> }
                     data={cachedBookmarkedLandmarks}
                     renderItem={({item, index}) => (
-                        <Pressable style={[styles.bathroomItemContainer, {marginTop: index == 0 ? 0 : 20, borderTopWidth: index == 0 ? 0: 1}]} onPress={() => handleListItemPress(index)}>
+                        <Pressable 
+                                style={({pressed}) => [
+                                    styles.bathroomItemContainer, 
+                                    {
+                                     marginTop: index == 0 ? 0 : 20, 
+                                     borderTopWidth: index == 0 ? 0: 1,
+                                     opacity: pressed ? 0.7 : 1
+                                    }
+                                  ]
+                                } 
+                                onPress={() => handleListItemPress(index)}>
                             <BathroomListItem navigation={navigation} landmark={item} useRemoveBookmarkAnimation={true} />
                             <Pressable 
-                                style={({pressed}) => [styles.viewOnMapButton, {backgroundColor: pressed ? "#D0D0D0" : 'white'}]}
+                                style={({pressed}) => [styles.viewOnMapButton, {
+                                    backgroundColor: pressed ? "#e0e0e0" : 'white',
+                                    // opacity: pressed ? 0.7 : 1
+                                }]}
                                 onPress={() => {
                                     setSelectedBookmarkedLandmark(cachedBookmarkedLandmarks[index]);
                                     navigation.navigate("Bookmark Map View");

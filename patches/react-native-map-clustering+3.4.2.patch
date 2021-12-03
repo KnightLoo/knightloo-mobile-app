@@ -1,0 +1,54 @@
+diff --git a/node_modules/react-native-map-clustering/lib/ClusteredMapView.js b/node_modules/react-native-map-clustering/lib/ClusteredMapView.js
+index 9e44320..9277f23 100644
+--- a/node_modules/react-native-map-clustering/lib/ClusteredMapView.js
++++ b/node_modules/react-native-map-clustering/lib/ClusteredMapView.js
+@@ -118,6 +118,7 @@ const ClusteredMapView = forwardRef(
+               Infinity
+             );
+           }
++
+           let positions = generateSpiral(marker, spiralChildren, markers, i);
+           allSpiderMarkers.push(...positions);
+         });
+@@ -136,7 +137,7 @@ const ClusteredMapView = forwardRef(
+         if (animationEnabled && Platform.OS === "ios") {
+           LayoutAnimation.configureNext(layoutAnimationConf);
+         }
+-        if (zoom >= 18 && markers.length > 0 && clusterChildren) {
++        if (zoom >= 19 && markers.length > 0 && clusterChildren) {
+           if (spiralEnabled) updateSpiderfier(true);
+         } else {
+           if (spiralEnabled) updateSpiderfier(false);
+diff --git a/node_modules/react-native-map-clustering/lib/helpers.js b/node_modules/react-native-map-clustering/lib/helpers.js
+index 8961171..02c5e25 100644
+--- a/node_modules/react-native-map-clustering/lib/helpers.js
++++ b/node_modules/react-native-map-clustering/lib/helpers.js
+@@ -58,9 +58,9 @@ export const generateSpiral = (marker, clusterChildren, markers, index) => {
+   let angle = 0;
+   let start = 0;
+ 
+-  for (let i = 0; i < index; i++) {
+-    start += markers[i].properties.point_count || 0;
+-  }
++  // for (let i = 0; i < index; i++) {
++  //   start += markers[i].properties.point_count || 0;
++  // }
+ 
+   for (let i = 0; i < count; i++) {
+     angle = 0.25 * (i * 0.5);
+@@ -68,6 +68,7 @@ export const generateSpiral = (marker, clusterChildren, markers, index) => {
+     let longitude = centerLocation[0] + 0.0002 * angle * Math.sin(angle);
+ 
+     if (clusterChildren[i + start]) {
++      
+       res.push({
+         index: clusterChildren[i + start].properties.index,
+         longitude,
+@@ -79,7 +80,6 @@ export const generateSpiral = (marker, clusterChildren, markers, index) => {
+       });
+     }
+   }
+-
+   return res;
+ };
+ 

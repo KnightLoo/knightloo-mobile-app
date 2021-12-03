@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext, forwardRef, useImperativeHandle } from 'react';
-import { StyleSheet, Text, View, Button, TouchableHighlight, Switch, SafeAreaView, Pressable, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableHighlight, Switch, SafeAreaView, Pressable, ScrollView, Platform } from 'react-native';
 import { LandmarkMapProvider } from '../contexts/LandmarkMapContext';
 import {ButtonGroup, CheckBox} from 'react-native-elements';
 import {Picker} from '@react-native-picker/picker';
@@ -36,6 +36,9 @@ export default FilterScreen = forwardRef( ({navigation}, ref) => {
     const [unisexChecked, setUnisexChecked] = useState(filterQuery.showUnisexBathrooms || false);
 
     const sliderRef = useRef();
+
+    const extraSliderHeaderTextStyles = Platform.OS === "ios" ? {marginBottom: 10} : {marginBottom: 15};
+    const sliderThumbTintColor = Platform.OS === "ios" ? "white" : "#d3d3d3";
 
     useImperativeHandle(filterScreenRef, () => ({
 
@@ -105,7 +108,7 @@ export default FilterScreen = forwardRef( ({navigation}, ref) => {
                     </View>
 
                     <View style={styles.distanceFilterSection}>
-                        <View style={styles.distanceFilterHeaderContainer}>
+                        <View style={[styles.distanceFilterHeaderContainer, extraSliderHeaderTextStyles]}>
                             <Text>Maximum Distance</Text>
                             <Text style={styles.selectedDistanceText}>
                                 {selectedMaxRadius != 5600 ? 
@@ -127,6 +130,7 @@ export default FilterScreen = forwardRef( ({navigation}, ref) => {
                             minimumTrackTintColor="gold"
                             maximumTrackTintColor="#D3D3D3"
                             onValueChange={(val) => setSelectedMaxRadius(val)}
+                            thumbTintColor={sliderThumbTintColor}
                         />
                         
                         
@@ -180,7 +184,7 @@ export default FilterScreen = forwardRef( ({navigation}, ref) => {
                     <View style={styles.openBathroomsFilterSection}>
                         <Text style={styles.handicapFilterTitle}>Open Bathrooms Only</Text>
                         <Switch
-                            trackColor={{ false: "#3e3e3e", true: "gold" }}
+                            trackColor={{ false: "#c5c5c5", true: "gold" }}
                             thumbColor={'white'}
                             // thumbColor off was #f4f3f4
                             ios_backgroundColor="#F5F5F5"
@@ -193,7 +197,7 @@ export default FilterScreen = forwardRef( ({navigation}, ref) => {
                     <View style={styles.handicapFilterSection}>
                         <Text style={styles.handicapFilterTitle}>Wheelchair Accessible Bathrooms Only</Text>
                         <Switch
-                            trackColor={{ false: "#3e3e3e", true: "gold" }}
+                            trackColor={{ false: "#c5c5c5", true: "gold" }}
                             thumbColor={'white'}
                             ios_backgroundColor="#F5F5F5"
                             onValueChange={() => setShowAccessibleBrOnly(!showAccessibleBrOnly)}

@@ -5,9 +5,15 @@ import CachedImage from 'expo-cached-image';
 import ExpoFastImage from 'expo-fast-image';
 import AppContext from '../contexts/AppContext';
 import LandmarkMapContext from '../contexts/LandmarkMapContext';
+import {
+    BottomSheetModal
+  } from '@gorhom/bottom-sheet';
+
+// import { useNavigation } from '@react-navigation/native';
 
 export default function SignInToContinueBottomSheet({navigation, signInToContinueSheetRef}){
 
+    // const navigation = useNavigation();
 
     const {setDidComeFromReviewButtonPress} = useContext(AppContext);
 
@@ -15,8 +21,9 @@ export default function SignInToContinueBottomSheet({navigation, signInToContinu
 
     return (
         <BottomSheet
+            style={{zIndex: 2000}}
             backdropComponent={BottomSheetBackdrop}
-            backgroundStyle={styles.bgContainer}
+            // backgroundStyle={{zIndex: 10}}
             handleComponent={null}
             ref={signInToContinueSheetRef}
             index={-1}
@@ -25,7 +32,7 @@ export default function SignInToContinueBottomSheet({navigation, signInToContinu
             enablePanDownToClose={false}
             
         >
-            <View style={{flex: 1}}>  
+            <View style={{flex: 1, zIndex: 110}}>  
                 <View style={{width: '100%', marginTop: 25}}>
                     <Text style={{textAlign: 'center', fontSize: 18, fontWeight: '500'}}>Create an account or log in to leave a review</Text>
                 </View>
@@ -85,7 +92,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         paddingVertical: 12,
         alignItems: 'center',
-        borderWidth: 1
+        borderWidth: 1,
     },
     signInButtonText: {
         fontSize: 17,

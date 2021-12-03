@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef, useContext, forwardRef, useImperativeHandle} from 'react';
-import { StyleSheet, Button, Text, View, Dimensions, Pressable } from 'react-native';
+import { StyleSheet, Button, Text, View, Dimensions, Pressable, Platform } from 'react-native';
 import AppContext from '../contexts/AppContext';
 import ReportIssueStackContext from '../contexts/ReportIssueStackContext';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -14,11 +14,13 @@ export default AdjustLocationScreen = forwardRef( ({navigation}, ref) => {
 
     const [mapCenter, setMapCenter] = useState(null);
 
+    const toiletIconTopMargin = Platform.OS === "ios" ? 10 : -5;
+
     useImperativeHandle(editMapScreenRef, () => ({
 
         setEditedLocation(){
             editLocationMapRef.current.getCamera().then(camera => {
-                console.log(camera);
+                // console.log(camera);
                 const editedLong = camera.center.longitude;
                 const editedLat = camera.center.latitude;
 
@@ -38,11 +40,7 @@ export default AdjustLocationScreen = forwardRef( ({navigation}, ref) => {
     const getCenterPosition = () => {
 
         editLocationMapRef.current.getCamera().then(camera => {
-            // console.log("cur camera: ", camera);
             editLocationMapRef.current.pointForCoordinate({latitude: camera.center.latitude, longitude: camera.center.longitude}).then(point => {
-                // console.log("camera xy: ", point);
-                // console.log("window width: ", Dimensions.get('window').width);
-                // console.log("window height: ", Dimensions.get('window').height);
                 setMapCenter(point);
             });
         });
@@ -50,12 +48,9 @@ export default AdjustLocationScreen = forwardRef( ({navigation}, ref) => {
 
     return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        {/* <Text style={{ fontSize: 30 }}>Adjust Location Screen</Text>
-        <Button onPress={() => navigation.goBack()} title="Dismiss" /> */}
             <View style={styles.mapContainer}>
                             
                 <MapView
-                    // legalLabelInsets={{top: -30, right: 0, left: 0, bottom: 0}}
                     ref={editLocationMapRef}
                     onMapReady={getCenterPosition}
                     showsUserLocation={false}
@@ -64,28 +59,16 @@ export default AdjustLocationScreen = forwardRef( ({navigation}, ref) => {
                     initialRegion={{
                         latitude: editedMapLocation.latitude,
                         longitude: editedMapLocation.longitude,
-                        // latitude: landmarkUnderEdit.latitude,
-                        // longitude: landmarkUnderEdit.longitude,
-                        // latitudeDelta: 0.0018652108904291254,
-                        // longitudeDelta: 0.002244906182966133,
                         latitudeDelta: 0.001,
                         longitudeDelta: 0.002,
                     }}
-                    // onRegionChangeComplete={(region) => console.log(region)}
-                >
-                    {/* <MapView.Marker 
-                        coordinate={{
-                            latitude: landmarkUnderEdit.latitude,
-                            longitude: landmarkUnderEdit.longitude,
-                        }}
-                    /> */}
-                </MapView>
-                            
+                />
+                
                 {mapCenter && 
                     <View style={[{position: 'absolute'}, {top: mapCenter.y, left: mapCenter.x, marginTop: -55, marginLeft: -20.75}]}>
                         <View style={{position: 'relative'}} onLayout={(e) => console.log(e.nativeEvent.layout) }>
                             <FontAwesome5 name="map-marker" size={55} color="gold" />
-                            <FontAwesome5 name="toilet" size={24} color="black" style={{position: 'absolute', zIndex: 99, margin: 'auto', top: 10, left: 0, right: 0, bottom: 0, textAlign: 'center', textAlignVertical: 'center'}}/>
+                            <FontAwesome5 name="toilet" size={24} color="black" style={{position: 'absolute', zIndex: 99, margin: 'auto', top: toiletIconTopMargin, left: 0, right: 0, bottom: 0, textAlign: 'center', textAlignVertical: 'center'}}/>
                         </View>
                     </View>
                 }

@@ -177,7 +177,7 @@ export default function SignUpScreen({navigation, route}){
                         }
 
                         // setNeedsToShowReviewScreen(true);
-                        console.log("here");
+                        // console.log("here");
                         navigation.goBack();
                       }, 10);
 
@@ -195,6 +195,9 @@ export default function SignUpScreen({navigation, route}){
                     case "auth/email-already-in-use":
                         setEmailError("Email already in use");
                         break;
+                     case "auth/weak-password":
+                         setPwordError("Password is too weak");
+                         break;
                     default: 
                         console.log(error.code);
                 }

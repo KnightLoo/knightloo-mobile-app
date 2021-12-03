@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext, useLayoutEffect } from 'react';
-import { StyleSheet, Text, View, Button, Easing } from 'react-native';
+import { StyleSheet, Text, View, Button, Easing, Pressable } from 'react-native';
 import * as Location from 'expo-location';
 import MapView from '../components/MapView';
 import ListView from '../components/ListView';
@@ -413,26 +413,53 @@ export default function LandmarkMapScreen({navigation, route}) {
                             component={MapView} 
                             options={({navigation}) => ({
                                 title: "Search",
+                                headerTitleAlign: 'center',
                                 animationEnabled: true,
+                                // headerLeft: () => (
+                                //     <Button
+                                //         onPress={() => navigation.replace("List View", {prevScreen: "Map"})}
+                                //         title={"List"}
+                                //         color="#007bff"
+                                //     />
+                                // ), 
+                                // headerLeftContainerStyle: {paddingLeft: 5},
                                 headerLeft: () => (
-                                    <Button
+                                    <Pressable
                                         onPress={() => navigation.replace("List View", {prevScreen: "Map"})}
-                                        title={"List"}
-                                        color="#007bff"
-                                    />
-                                ), 
-                                headerLeftContainerStyle: {paddingLeft: 5},
+
+                                    >
+                                        {({ pressed }) => (
+                                            <Text style={{opacity: pressed  ? 0.25 : 1, elevation: 3, color: "#007bff", fontSize: 17}}>
+                                                List
+                                            </Text>
+                                        )}
+                                                    
+                                    </Pressable>
+                                  ),
+                                // headerRight: () => (
+                                // <Button
+                                //     onPress={() => {
+                                //         navigation.navigate("Filter Screen")
+                                //     }}
+                                //     title="Filter"
+                                //     color="#007bff"
+                                // />
+                                // ), 
                                 headerRight: () => (
-                                <Button
-                                    onPress={() => {
-                                        navigation.navigate("Filter Screen")
-                                    }}
-                                    title="Filter"
-                                    color="#007bff"
-                                />
-                                ), 
-                                headerRightContainerStyle: {paddingRight: 5},
-                               
+                                    <Pressable
+                                        onPress={() => navigation.navigate("Filter Screen")}
+                                    >
+                                        {({ pressed }) => (
+                                            <Text style={{opacity: pressed  ? 0.25 : 1, elevation: 3, color: "#007bff", fontSize: 17}}>
+                                                Filter
+                                            </Text>
+                                        )}
+                                                    
+                                    </Pressable>
+                                  ),
+                                // headerRightContainerStyle: {paddingRight: 5},
+                                headerLeftContainerStyle: {paddingLeft: 20},
+                                headerRightContainerStyle: {paddingRight: 20},
                             })}
                         />
                         <Stack.Screen 
@@ -440,23 +467,56 @@ export default function LandmarkMapScreen({navigation, route}) {
                             component={ListView}
                             options={({navigation}) => ({
                                 title: "Search",
+                                headerTitleAlign: 'center',
                                 animationEnabled: true,
+                                // headerLeft: () => (
+                                //     <Button
+                                //         onPress={() => navigation.replace("Map View", {prevScreen: "List"})}
+                                //         title={"Map"}
+                                //         color="#007bff"
+                                //     />
+                                // ), 
+
+
                                 headerLeft: () => (
-                                    <Button
+                                    <Pressable
                                         onPress={() => navigation.replace("Map View", {prevScreen: "List"})}
-                                        title={"Map"}
-                                        color="#007bff"
-                                    />
-                                ), 
-                                headerLeftContainerStyle: {paddingLeft: 5},
-                                headerRight: () => (
-                                <Button
-                                    onPress={() => navigation.navigate("Filter Screen")}
-                                    title="Filter"
-                                    color="#007bff"
-                                />
-                                ), 
-                                headerRightContainerStyle: {paddingRight: 5},
+
+                                    >
+                                        {({ pressed }) => (
+                                            <Text style={{opacity: pressed  ? 0.25 : 1, elevation: 3, color: "#007bff", fontSize: 17}}>
+                                                Map
+                                            </Text>
+                                        )}
+                                                    
+                                    </Pressable>
+                                  ),
+                                  headerRight: () => (
+                                    <Pressable
+                                        onPress={() => navigation.navigate("Filter Screen")}
+                                    >
+                                        {({ pressed }) => (
+                                            <Text style={{opacity: pressed  ? 0.25 : 1, elevation: 3, color: "#007bff", fontSize: 17}}>
+                                                Filter
+                                            </Text>
+                                        )}
+                                                    
+                                    </Pressable>
+                                  ),
+
+
+                                // headerLeftContainerStyle: {paddingLeft: 5},
+                                // headerRight: () => (
+                                // <Button
+                                //     onPress={() => navigation.navigate("Filter Screen")}
+                                //     title="Filter"
+                                //     color="#007bff"
+                                // />
+                                // ), 
+                                // headerRightContainerStyle: {paddingRight: 5},
+                                headerLeftContainerStyle: {paddingLeft: 20},
+                                headerRightContainerStyle: {paddingRight: 20},
+
                             })}
                         />
                         <Stack.Screen 
@@ -464,6 +524,7 @@ export default function LandmarkMapScreen({navigation, route}) {
                             component={LandmarkDetailScreen}
                             ref={backRef}
                             options={{
+                                title: "Details",
                                 headerBackTitle: "Back",
                                 headerBackTitleStyle: {color: "#007bff"},
                                 headerLeftContainerStyle: {paddingLeft: 5},

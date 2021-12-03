@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useContext, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useCallback, useContext, useEffect, useLayoutEffect, useMemo } from 'react';
 import { StyleSheet, Dimensions, View, Text, FlatList, SafeAreaView, StatusBar, Pressable, Easing, ActivityIndicator} from 'react-native';
 import AppContext from '../contexts/AppContext';
 import LandmarkMapContext from '../contexts/LandmarkMapContext';
@@ -73,8 +73,6 @@ const flipOptions = {
 
 
 
-
-
 export default function ListView({navigation, route}){
 
     const {setSelectedLandmark} = useContext(AppContext);
@@ -102,6 +100,20 @@ export default function ListView({navigation, route}){
 
 
 
+    const RenderItem = useCallback(({item, index}) => {
+        return (
+          <Pressable 
+              style={({pressed}) => [
+                  styles.bathroomItemContainer, 
+                  { opacity: pressed ? 0.7 : 1}
+                ]
+              } 
+              onPress={() => handleListItemPress(index)}>
+                <BathroomListItem navigation={navigation} landmark={item} />
+            </Pressable>
+        );
+      },[landmarks],
+    );
 
     return (
 
@@ -114,11 +126,9 @@ export default function ListView({navigation, route}){
                 ListHeaderComponentStyle={styles.headerComponentStyle}
                 ListEmptyComponent={isFetchingBathrooms ? <LoadingLandmarksView /> : <NoLandmarksView />}
                 data={landmarks}
-                renderItem={({item, index}) => (
-                    <Pressable style={styles.bathroomItemContainer} onPress={() => handleListItemPress(index)}>
-                        <BathroomListItem navigation={navigation} landmark={item} />
-                    </Pressable>
-                )}
+                initialNumToRender={7} 
+                renderItem={RenderItem}
+            
             />    
         </SafeAreaView>
     );
@@ -150,7 +160,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
-        marginTop: StatusBar.currentHeight || 0,
+        // marginTop: StatusBar.currentHeight || 0,
         width: '100%',            
     },
     headerComponentStyle: {
@@ -163,7 +173,7 @@ const styles = StyleSheet.create({
     listItemSeparator: {
         borderTopColor: 'gray',
         borderTopWidth: 1,
-
+        // marginTop: 10
     }
 });
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useContext, useMemo, u
 import AppContext from '../contexts/AppContext';
 import DetailScreen from './DetailScreen';
 
-export default function LandmarkDetailScreen({navigation, route}) {
+export default function rLandmarkDetailScreen({navigation, route}) {
 
     const {selectedLandmark} = useContext(AppContext);
 

@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef, useContext, forwardRef, useImperativeHandle} from 'react';
-import { StyleSheet, Button, Text, View, Dimensions, Pressable } from 'react-native';
+import { StyleSheet, Button, Text, View, Dimensions, Pressable, Image} from 'react-native';
 import AppContext from '../contexts/AppContext';
 import Firebase from '../utils/Firebase';
 
@@ -19,12 +19,25 @@ export default function AccountScreen({navigation}){
             {user ?
             
             (<>
+                <View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 20}}>
+                    <Image source={require('../assets/knightloo_logo.jpg')} style={{ width: 324 / 3, height: 362 / 3, borderWidth: 0}} /> 
+                </View>
+                
                 <View style={styles.welcomeMessageContainer}>
                     <Text style={styles.welcomeMessageText}>Hello, {user.displayName}</Text>
                 </View>
 
                 <View style={styles.signOutButtonContainer}>
-                    <Button onPress={handleSignOut} title="Sign out" />
+
+                <Pressable 
+                        onPress={handleSignOut} 
+                    >
+                        {({ pressed }) => (
+                            <Text style={{opacity: pressed ? 0.25 : 1, elevation: 3, fontWeight: '600', color: "#007bff", fontSize: 17}}>
+                                Sign out
+                            </Text>
+                        )}             
+                    </Pressable>
                 </View>
             </>)
             
@@ -65,11 +78,8 @@ export default function AccountScreen({navigation}){
                         </View>
         
                     </View>
-                    </View>)
-
+                </View>)
             }
-
-
         </View>
     );
 }
@@ -120,5 +130,9 @@ const styles = StyleSheet.create({
         fontSize: 17,
         fontWeight: 'bold',
         elevation: 3
+    },
+    signOutButtonContainer: {
+        flex: 1,
+        alignItems: 'center'
     }
 });

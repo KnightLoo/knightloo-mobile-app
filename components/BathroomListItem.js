@@ -11,12 +11,21 @@ import 'firebase/firestore';
 import Firebase from '../utils/Firebase';
 const db = Firebase.firestore();
 
+function mod(n, m) {
+  return ((n % m) + m) % m;
+}
 
 export default function BathroomListItem({navigation, landmark, useRemoveBookmarkAnimation=false}){
 
 
     const [isBookmarked, setIsBookmarked] = useState(false);
     const {user, bookmarkedLandmarkIds} = useContext(AppContext);
+
+    const dayInd = mod(new Date().getDay() - 1, 7);
+
+    // useEffect(() => {
+    //   console.log(landmark.id);
+    // }, [landmark]);
 
     useEffect(() => {
 
@@ -53,9 +62,7 @@ export default function BathroomListItem({navigation, landmark, useRemoveBookmar
 
     }, [bookmarkedLandmarkIds]);
 
-    function mod(n, m) {
-        return ((n % m) + m) % m;
-    }
+    
 
     const handleToggleBookmark = () => {
 
@@ -66,32 +73,20 @@ export default function BathroomListItem({navigation, landmark, useRemoveBookmar
       if(user && landmark && landmark.id){
         const userBookmarkDocRef = db.collection("bookmarks").doc(user.uid);
 
-        // if(useRemoveBookmarkAnimation && !newIsBookmarked){
-        //   console.log(".............gonna use animationnnnnnnnn........");
-        //   // LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        //   LayoutAnimation.configureNext(
-        //     LayoutAnimation.create(
-        //       2000,
-        //       LayoutAnimation.Types.linear,
-        //       LayoutAnimation.Properties.scaleY
-        //     )
-        //   );
-        // }
-
         setIsBookmarked(newIsBookmarked);
 
         userBookmarkDocRef.set({
           bookmarkedLandmarkIds: newIsBookmarked ? firebase.firestore.FieldValue.arrayUnion(landmark.id) : firebase.firestore.FieldValue.arrayRemove(landmark.id)
         }, { merge: true })
         .then(() => {
-          console.log("Bookmarks updated successfully");
+          // console.log("Bookmarks updated successfully");
         })
         .catch((error) => {
             console.error("Error updating bookmark ", error);
         });
       }
       else {
-        console.log("nothing happening");
+        // console.log("nothing happening");
       }
       
     };
@@ -112,7 +107,9 @@ export default function BathroomListItem({navigation, landmark, useRemoveBookmar
                 <Text style={styles.landmarkDesc}> {landmark.floorStr}</Text>
               </View>
 
-            <BathroomHoursOfOperationText hopData={landmark.hopData.flattenedHopDataForFilteringAndMutating[mod(new Date().getDay() - 1, 7)]}/>
+            <BathroomHoursOfOperationText hopData={landmark.hopData.flattenedHopDataForFilteringAndMutating[dayInd]}/>
+
+            {/* <BathroomHoursOfOperationText hopData={landmark.hopData.flattenedHopDataForFilteringAndMutating[mod(new Date().getDay() - 1, 7)]}/> */}
             
             <View style={styles.handicapInfoContainer}>
 
@@ -128,12 +125,7 @@ export default function BathroomListItem({navigation, landmark, useRemoveBookmar
         {user && user.uid &&
           <View style={{position: 'relative', top: 0, bottom: 0, right: 0, left: 0, height: '100%', marginRight: 10, marginTop: 20}}>
             <Pressable onPress={() => {
-
-              // if(useRemoveBookmarkAnimation){
-              //   handleToggleBookmark(isBookmarked, landmark, true);
-              // }
               handleToggleBookmark();
-              
             }} style={{position: 'relative'}}>
               <MaterialIcons name={isBookmarked ? "bookmark" : "bookmark-border"} size={30} color="black" />
             </Pressable>        
@@ -158,6 +150,10 @@ export default function BathroomListItem({navigation, landmark, useRemoveBookmar
 
 
 function BathroomHoursOfOperationText({hopData}){
+
+    useEffect(() => {
+      console.log("hop re rendered");
+    }, [hopData]);
 
     if(!hopData){
       return <Text>No hours information</Text>;

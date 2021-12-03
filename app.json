@@ -19,13 +19,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.knightloo.KnightLoo",
-      "buildNumber": "1.0.1"
+      "buildNumber": "3"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.knightloo.KnightLoo"
     },
     "web": {
       "favicon": "./assets/favicon.png"

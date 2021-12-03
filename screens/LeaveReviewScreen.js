@@ -24,7 +24,7 @@ export default function LeaveReviewScreen({navigation}){
 
     const reviewTextInputRef = useRef();
 
-    const {selectedLandmark, user} = useContext(AppContext);
+    const {landmarkUnderReview, user} = useContext(AppContext);
 
     const [rating, setRating] = useState(3);
     const [reviewText, setReviewText] = useState("");
@@ -33,13 +33,13 @@ export default function LeaveReviewScreen({navigation}){
     const handleReviewSubmit = async () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
-        if(rating && reviewText && user && user.displayName && selectedLandmark.id){
+        if(rating && reviewText && user && user.displayName && landmarkUnderReview.id){
 
             const batch = db.batch();
 
             const rating_num = parseInt(rating);
 
-            const landmarkDataDocRef = db.collection("landmark_locations_data").doc(selectedLandmark.id);
+            const landmarkDataDocRef = db.collection("landmark_locations_data").doc(landmarkUnderReview.id);
 
             batch.update(landmarkDataDocRef, {
                 ratings_sum: firebase.firestore.FieldValue.increment(rating_num),
@@ -49,7 +49,7 @@ export default function LeaveReviewScreen({navigation}){
             const newReviewDocRef = db.collection("bathroom_reviews").doc();
 
             batch.set(newReviewDocRef, {
-                landmark_id: selectedLandmark.id,
+                landmark_id: landmarkUnderReview.id,
                 review_author: user.displayName,
                 review_text: reviewText,
                 num_stars: rating_num,
@@ -58,7 +58,7 @@ export default function LeaveReviewScreen({navigation}){
 
             try {
                 await batch.commit();
-                console.log("just committed");
+                // console.log("just committed");
                 navigation.goBack();
             } catch (error){
                 console.log("Error creating review ", error);
@@ -71,29 +71,19 @@ export default function LeaveReviewScreen({navigation}){
         <Pressable style={styles.screen} onPress={() => reviewTextInputRef.current.blur()}>
 
             <View style={styles.leaveReviewHeaderContainer}>
-                <Text style={styles.leaverReviewHeaderText}>Write a review for {selectedLandmark.building} ({selectedLandmark.gender})</Text>
+                <Text style={styles.leaverReviewHeaderText}>Write a review for {landmarkUnderReview.building} ({landmarkUnderReview.gender})</Text>
             </View>
 
-           
             <View style={styles.ratingContainer}>
-                {/* <Text style={styles.ratingHeaderText}>Rating</Text> */}
-
                 <Rating
-                    // starContainerStyle={styles.starContainer}
                     type="custom"
-                    // ratingImage={(<Ionicons name="ios-star" size={24} color="black" />)}
                     showRating={false}
-                    // ratingBackgroundColor={'gray'}
-                    // ratingColor={'gray'}
-
                     reviews={['Terrible', 'Bad', 'Okay', 'Good', 'Great']}
                     fractions={0}
                     startingValue={3}
                     minValue={1}
-                    // onFinishRating={this.ratingCompleted}
                     style={{ marginTop: 20 }}
                     onFinishRating={(newRating) => setRating(newRating)}
-                    // size={30}
                 />
             </View>
 
@@ -124,7 +114,7 @@ export default function LeaveReviewScreen({navigation}){
                 <Pressable 
                     style={({pressed}) => [styles.button, {backgroundColor: 'white', borderColor: 'gold', opacity: pressed ? 0.5 : 1}]}
                     onPress={() => {
-                        console.log("cancel button pressed");
+                        // console.log("cancel button pressed");
                         navigation.goBack();
                     }}
                     >
@@ -137,9 +127,8 @@ export default function LeaveReviewScreen({navigation}){
                     disabled={reviewText == null || reviewText == ""}
                     style={({pressed}) => [styles.button, {backgroundColor: 'gold', borderColor: 'gold', opacity: pressed || reviewText == null || reviewText == "" ? 0.5 : 1}]}
                     onPress={() => {
-                        console.log("submit button pressed");
+                        // console.log("submit button pressed");
                         handleReviewSubmit();
-                        // navigation.goBack();
                     }}
                     >
                         {({pressed}) => (
@@ -167,19 +156,9 @@ const styles = StyleSheet.create({
     },
     screen: {
         flex: 1,
-        // flexGrow: 1, 
         justifyContent: 'flex-start',
         backgroundColor: '#fff',
-        // alignItems: 'flex-start',
-        // justifyContent: 'flex-start',
-        // marginTop: StatusBar.currentHeight || 0,
-        // width: '100%',
         paddingBottom: 10
-        // height: '100%'
-        // height: 300,
-        // borderWidth: 1, 
-        // borderColor: 'red'
-
     },
     leaveReviewHeaderContainer: {
         marginVertical: 20,
@@ -209,18 +188,7 @@ const styles = StyleSheet.create({
         fontWeight: '400',
     },
     inputContainer: {
-        // borderBottomColor: '#D3D3D3',
-        // borderBottomWidth: 1,
-        // borderTopColor: '#D3D3D3',
-        // borderTopWidth: 1,
-        // // marginTop: 10,
-        // paddingHorizontal: 15,
-        // paddingVertical: 10,
         marginTop: 10,
-        
-        // marginHorizontal: 10,
-        // height: '15%',
-        // maxHeight: Dimensions.get("window").height * 0.25
     },
     textInput: {
         fontSize: 17,
@@ -232,28 +200,12 @@ const styles = StyleSheet.create({
         borderTopColor: '#D3D3D3',
         borderTopWidth: 1,
         paddingHorizontal: 15,
-        // borderBottomColor: '#D3D3D3',
-        // borderBottomWidth: 1,
-        // borderTopColor: '#D3D3D3',
-        // borderTopWidth: 1,
-        // paddingVertical: 18,
-        // marginVertical: 10
-        // paddingHorizontal: 15,
-        // marginVertical: 10,
-        // marginRight: 10
-        // paddingRight: 50
     },
     buttonsContainer: {
-        // flexGrow: 1,
-        // width: '80%',
         flexDirection: 'row',
-        // justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,
-        // marginHorizontal: 30,
         paddingHorizontal: 20,
-        // justifyContent: 'space-around',
-        // borderWidth: 1,
     },
     button: {
         flexGrow: 1,
@@ -272,36 +224,20 @@ const styles = StyleSheet.create({
         elevation: 3
     },
     hoursOfOpertionListContainer: {
-        // flex: 1,
-        // width: 50,
         borderBottomColor: '#D3D3D3',
         borderBottomWidth: 1,
         borderTopColor: '#D3D3D3',
         borderTopWidth: 1,
         marginVertical: 10,
-        // paddingLeft: 18,
-
-        // borderWidth: 1,
-        // borderColor: 'red'
-        // justifyContent: 'center'
     },
     hoursOfOperationItem: {
-        // width: '100%',
-        // flex:1,
         flexDirection: 'row',
-        // justifyContent: 'center'
-        // backgroundColor: 'green'
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 14,
         borderTopColor: '#D3D3D3',
-        // paddingLeft: 18
         marginLeft: 18
     },
     starContainer: {
-        // marginHorizontal: 10,
-        // borderWidth: 1,
-        // borderColor: 'black',
-        // backgroundColor: 'red'
     }
 });

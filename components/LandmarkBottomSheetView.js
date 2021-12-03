@@ -1,12 +1,10 @@
 import React, { useMemo, useContext, useState, useEffect } from 'react';
-import BottomSheet from '@gorhom/bottom-sheet';
-import { StyleSheet, Text, View, Button, SafeAreaView, Pressable, Dimensions, Image } from 'react-native';
-// import CachedImage from 'expo-cached-image';
-// import ExpoFastImage from 'expo-fast-image';
+import BottomSheet, {BottomSheetView, useBottomSheetDynamicSnapPoints} from '@gorhom/bottom-sheet';
+import { StyleSheet, Text, View, Button, SafeAreaView, Pressable, Dimensions, Image, Platform } from 'react-native';
 import LandmarkMapContext from '../contexts/LandmarkMapContext';
 import AppContext from '../contexts/AppContext';
 import CustomFastImage from './CustomFastImage';
-import { Ionicons, Feather, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 
 import firebase from 'firebase/app';
@@ -26,7 +24,8 @@ export default function LandmarkBottomSheetView({sheetRef, handleSheetChanges, l
 
     const [isBookmarked, setIsBookmarked] = useState(false);
 
-    // const forceUpdate = useForceUpdate();
+    const extraBgStyles = Platform.OS === "ios" ? null : {borderTopWidth: 0.5, borderTopColor: 'gray'};
+
     const {selectedLandmark, user, bookmarkedLandmarkIds} = useContext(AppContext);
     const {handleSheetPress} = useContext(LandmarkMapContext);
 
@@ -82,7 +81,7 @@ export default function LandmarkBottomSheetView({sheetRef, handleSheetChanges, l
 
     return (
         <BottomSheet
-        backgroundStyle={styles.bgContainer}
+        backgroundStyle={[styles.bgContainer, extraBgStyles]}
         handleComponent={null}
         ref={sheetRef}
         index={-1}
@@ -90,15 +89,13 @@ export default function LandmarkBottomSheetView({sheetRef, handleSheetChanges, l
         onChange={i => handleSheetChanges(i)}
         enablePanDownToClose={true}
         >
+          
           {selectedLandmark &&
           <Pressable style={styles.pressableContainer} onPress={() => handleSheetPress()}>
               <View style={styles.container}>
               
                 <View style={styles.textContainer}>
                   <Text style={styles.landmarkTitle}>{selectedLandmark.building}</Text>
-                  {/* <Text style={styles.landmarkDesc}>{selectedLandmark.floorStr}</Text> */}
-                  {/* <Text style={styles.landmarkDesc}>Knights Plaza</Text> */}
-                  {/* <Text style={styles.landmarkDesc}>{selectedLandmark.gender ? selectedLandmark.gender.charAt(0).toUpperCase() + selectedLandmark.gender.slice(1) : ""}</Text> */}
                   <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingVertical: 4}}>
                     <Text style={styles.landmarkDesc}>{selectedLandmark.gender ? selectedLandmark.gender.charAt(0).toUpperCase() + selectedLandmark.gender.slice(1) : ""} </Text>
                     <Text style={styles.middleDot}>{'\u2B24'}</Text>
@@ -106,8 +103,6 @@ export default function LandmarkBottomSheetView({sheetRef, handleSheetChanges, l
                   </View>
 
                   <BottomSheetHoursOfOperationText hopData={selectedLandmark.hopData.flattenedHopDataForFilteringAndMutating[mod(new Date().getDay() - 1, 7)]}/>
-                  {/* <Text style={styles.landmarkDesc}>{hopText}</Text>
-                  <Text style={{fontSize: 4}}>{'\u2B24'}</Text> */}
 
                   <View style={styles.handicapInfoContainer}>
 
@@ -145,7 +140,6 @@ export default function LandmarkBottomSheetView({sheetRef, handleSheetChanges, l
               </Pressable>
           }
 
-
       </BottomSheet>
     );
 }
@@ -157,12 +151,13 @@ function BottomSheetHoursOfOperationText({hopData}){
     return <Text>No hours information</Text>;
   }
   if(hopData.isAllDay){
-    return <Text style={styles.openText}>Open 24 Hours</Text>;
+    return <Text style={[styles.openText, {paddingVertical: 4}]}>Open 24 Hours</Text>;
   }
 
   if(hopData.etRangeStr == "closed"){
-    return <Text style={styles.closedText}>Closed</Text>
+    return <Text style={[styles.closedText, {paddingVertical: 4}]}>Closed</Text>
   }
+
 
   return (
     <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingVertical: 4}}>
@@ -175,39 +170,6 @@ function BottomSheetHoursOfOperationText({hopData}){
 }
 
 
-// function LandMarkImage(){
-  
-//   const [imgUrl, setImgUrl] = useState(null);
-//   const [cacheId, setCacheId] = useState(null);
-  
-//   const {selectedLandmark} = useContext(LandmarkMapContext);
-
-//   useEffect(() => {
-
-//     console.log("forcing update");
-//     console.log(imgUrl);
-//     console.log(cacheId);
-
-//     setCacheId(selectedLandmark != null ? selectedLandmark.id : null);
-//     setImgUrl(selectedLandmark != null ? selectedLandmark.imgUrl : null);
-//     // forceUpdate();
-//   }, [selectedLandmark]);
-  
-
-//   return (
-//     <>
-//     {imgUrl && cacheId &&
-//     (<ExpoFastImage 
-//       uri={imgUrl}
-//       cacheKey={cacheId}
-//       resizeMode="cover"
-//       style={styles.imageContainer}
-//     />)
-//      }
-//   </>
-//   );
-
-// }
   
 const styles = StyleSheet.create({
   pressableContainer: {
@@ -246,7 +208,7 @@ const styles = StyleSheet.create({
     minWidth: Dimensions.get('window').width / 3,
   },
   bgContainer: {
-    borderRadius: 0
+    borderRadius: 0,
   },
   openText: {
     color: 'green'

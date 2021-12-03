@@ -235,29 +235,6 @@ export default function DetailScreen({navigation, route, selectedLandmark}) {
             }
             
         </SafeAreaView>
-
-        
-        {/* <SignInToContinueBottomSheet navigation={navigation} signInToContinueSheetRef={signInToContinueSheetRef}/> */}
-
-        {/* <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => {
-            // Alert.alert('Modal has been closed.');
-                setModalVisible(!modalVisible);
-            }}>
-            <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                    <Text>Hello World!</Text>
-                    <Pressable
-                        onPress={() => setModalVisible(!modalVisible)}
-                        >
-                            <Text>Hide Modal</Text>
-                    </Pressable>
-                </View>
-            </View>
-        </Modal> */}
         </>
     );
 }
@@ -266,7 +243,7 @@ export default function DetailScreen({navigation, route, selectedLandmark}) {
 
 function LandmarkDetailScreenHeader({selectedLandmark, setModalVisible, navigation}){
 
-    const {setLandmarkUnderEdit, setCurLandmarkHopData, setEditedMapLocation, signInToContinueSheetRef, user, bookmarkedLandmarkIds} = useContext(AppContext);
+    const {setLandmarkUnderEdit, setCurLandmarkHopData, setEditedMapLocation, signInToContinueSheetRef, user, bookmarkedLandmarkIds, setLandmarkUnderReview} = useContext(AppContext);
     
     const [isBookmarked, setIsBookmarked] = useState(false);
 
@@ -366,12 +343,12 @@ function LandmarkDetailScreenHeader({selectedLandmark, setModalVisible, navigati
             <Pressable 
                 style={styles.reportIssueButtonContainer}
                 onPress={() => {
-                    console.log("Report issue button pressed");
+                    // console.log("Report issue button pressed");
                     // setModalVisible(true);
                     setLandmarkUnderEdit(selectedLandmark);
                     setEditedMapLocation({longitude: selectedLandmark.longitude, latitude: selectedLandmark.latitude});
                     setCurLandmarkHopData(cloneDeep(selectedLandmark.hopData));
-                    console.log(selectedLandmark);
+                    // console.log(selectedLandmark);
                     navigation.navigate("Report Issue");
                 }}
             >
@@ -397,6 +374,8 @@ function LandmarkDetailScreenHeader({selectedLandmark, setModalVisible, navigati
                     onPress={() => {
                         console.log("leave review button pressed");
                         // navigation.navigate("Login modal");
+                        setLandmarkUnderReview(selectedLandmark);
+                        
                         if(user){
                             navigation.navigate("Leave Review");
                         } else {
@@ -469,7 +448,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
-        marginTop: StatusBar.currentHeight || 0,
+        // marginTop: StatusBar.currentHeight || 0,
         width: '100%',
         // height: '100%',
         

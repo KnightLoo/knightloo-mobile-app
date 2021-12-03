@@ -35,6 +35,10 @@ export default function filterBathroomResults(results, floorsFilter, openBathroo
 
         filteredResults = filteredResults.filter(br => {
             const curHopData = br.hopData.flattenedHopDataForFilteringAndMutating[curDayInd];
+            
+            if(curHopData == null){
+                return false;
+            }
 
             if(curHopData.isAllDay){
                 return true;
